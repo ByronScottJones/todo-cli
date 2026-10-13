@@ -29,14 +29,14 @@ public class AddCommandHandler
         {
             var todoListRepository = serviceProvider.GetRequiredService<ITodoListRepository>();
             var userInteraction = serviceProvider.GetRequiredService<IUserInteraction>();
-            var handler = new AddCommandHandler(todoListRepository, null, userInteraction);
+            var handler = new AddCommandHandler(todoListRepository, serviceProvider.GetRequiredService<ITodoItemRepository>(), userInteraction);
             return handler.HandleListAsync;
         }
     }
 
     public class Item
     {
-        public static Func<string, string, bool, string?, Task<int>> Create(IServiceProvider serviceProvider)
+        public static Func<string, string?, bool, string?, Task<int>> Create(IServiceProvider serviceProvider)
         {
             var todoListRepository = serviceProvider.GetRequiredService<ITodoListRepository>();
             var todoItemRepository = serviceProvider.GetRequiredService<ITodoItemRepository>();
@@ -86,7 +86,7 @@ public class AddCommandHandler
         }
     }
 
-    private async Task<int> HandleItemAsync(string subject, string listName, bool star, string? dueDateString)
+    private async Task<int> HandleItemAsync(string subject, string? listName, bool star, string? dueDateString)
     {
         try
         {

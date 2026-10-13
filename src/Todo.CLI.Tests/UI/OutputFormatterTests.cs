@@ -77,7 +77,7 @@ public class OutputFormatterTests
         var result = formatter.FormatItem(_incompleteItem, noStatus: false);
 
         // Assert
-        Assert.Contains(_incompleteItem.Subject, result);
+        Assert.Contains(_incompleteItem.Subject!, result); // fixture always sets Subject
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class OutputFormatterTests
         var result = formatter.FormatItem(_incompleteItem, noStatus: true);
 
         // Assert
-        Assert.Contains(_incompleteItem.Subject, result);
+        Assert.Contains(_incompleteItem.Subject!, result); // fixture always sets Subject
         Assert.DoesNotContain("-", result);
     }
 
@@ -104,7 +104,7 @@ public class OutputFormatterTests
         var result = formatter.FormatList(_testList, noStatus: false);
 
         // Assert
-        Assert.Contains(_testList.Name, result);
+        Assert.Contains(_testList.Name!, result); // fixture always sets Name
         Assert.Contains(_testList.Count.ToString(), result);
     }
 
@@ -300,7 +300,7 @@ public class OutputFormatterTests
 
         // Assert
         Assert.DoesNotContain("(", result);
-        Assert.Contains(_incompleteItem.Subject, result);
+        Assert.Contains(_incompleteItem.Subject!, result); // fixture always sets Subject
     }
 
     [Fact]

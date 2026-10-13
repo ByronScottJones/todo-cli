@@ -151,7 +151,7 @@ public class ListCommandTests
         var listName = "Non-existent List";
 
         _mockListRepository.Setup(r => r.GetByNameAsync(listName))
-            .ReturnsAsync((TodoList)null);
+            .ReturnsAsync((TodoList?)null);
 
         var command = new ListCommand(_serviceProvider);
         var handler = ListCommandHandler.Create(_serviceProvider);

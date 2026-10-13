@@ -22,7 +22,7 @@ public class CompleteCommandHandler
         _userInteraction = userInteraction;
     }
 
-    public static Func<string[], string, DateTime?, bool, Task<int>> Create(IServiceProvider serviceProvider)
+    public static Func<string[], string?, DateTime?, bool, Task<int>> Create(IServiceProvider serviceProvider)
     {
         var todoItemRepository = serviceProvider.GetRequiredService<ITodoItemRepository>();
         var userInteraction = serviceProvider.GetRequiredService<IUserInteraction>();
@@ -30,7 +30,7 @@ public class CompleteCommandHandler
         return handler.HandleAsync;
     }
 
-    private async Task<int> HandleAsync(string[] ids, string listName, DateTime? olderThan, bool completeAll)
+    private async Task<int> HandleAsync(string[] ids, string? listName, DateTime? olderThan, bool completeAll)
     {
         if (ids.Length > 0)
         {
