@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Todo.CLI.Auth;
 
@@ -20,36 +22,43 @@ static class TodoCliAuthenticationProviderFactory
 
         TokenCacheHelper.EnableSerialization(app.UserTokenCache);
 
-        // Try to get token silently from cache first
-        var accounts = app.GetAccountsAsync().GetAwaiter().GetResult();
-        AuthenticationResult? result = null;
+        // Parallel requests must not each open an interactive sign-in.
+        var gate = new SemaphoreSlim(1, 1);
 
-        if (accounts.Any())
+        async Task<string> GetAccessTokenAsync(CancellationToken cancellationToken)
         {
+            await gate.WaitAsync(cancellationToken).ConfigureAwait(false);
             try
             {
-                result = app.AcquireTokenSilent(config.Scopes, accounts.First())
-                    .ExecuteAsync()
-                    .GetAwaiter()
-                    .GetResult();
+                // Silent acquisition returns the cached token or refreshes it, so long sessions keep working.
+                var accounts = await app.GetAccountsAsync().ConfigureAwait(false);
+                if (accounts.Any())
+                {
+                    try
+                    {
+                        var silent = await app.AcquireTokenSilent(config.Scopes, accounts.First())
+                            .ExecuteAsync(cancellationToken)
+                            .ConfigureAwait(false);
+                        return silent.AccessToken;
+                    }
+                    catch (MsalUiRequiredException)
+                    {
+                        // Refresh token expired or revoked; fall through to interactive login.
+                    }
+                }
+
+                var interactive = await app.AcquireTokenInteractive(config.Scopes)
+                    .WithPrompt(Prompt.NoPrompt)
+                    .ExecuteAsync(cancellationToken)
+                    .ConfigureAwait(false);
+                return interactive.AccessToken;
             }
-            catch (MsalUiRequiredException)
+            finally
             {
-                // Token expired or invalid, will fall through to interactive login
+                gate.Release();
             }
         }
 
-        // If silent acquisition failed or no accounts found, do interactive login
-        if (result == null)
-        {
-            result = app.AcquireTokenInteractive(config.Scopes)
-                .WithPrompt(Prompt.NoPrompt)
-                .ExecuteAsync()
-                .GetAwaiter()
-                .GetResult();
-        }
-
-        return new ApiKeyAuthenticationProvider("Bearer " + result.AccessToken, "Authorization",
-            ApiKeyAuthenticationProvider.KeyLocation.Header);
+        return new MsalAuthenticationProvider(GetAccessTokenAsync);
     }
 }
