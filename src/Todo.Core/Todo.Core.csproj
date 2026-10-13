@@ -15,4 +15,8 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.61.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Todo.CLI.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -6,6 +6,7 @@ using Core.Model;
 using Core.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Todo.CLI.UI;
+using Todo.Core;
 
 public class AddCommandHandler
 {
@@ -46,21 +47,7 @@ public class AddCommandHandler
         }
     }
 
-    internal static DateTime? ParseDueDate(string? dueDateString)
-    {
-        if (string.IsNullOrWhiteSpace(dueDateString))
-            return null;
-
-        var currentYear = DateTime.Now.Year;
-
-        if (DateTime.TryParseExact(dueDateString, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out var fullDate))
-            return fullDate;
-
-        if (DateTime.TryParseExact(dueDateString, "MM-dd", null, System.Globalization.DateTimeStyles.None, out var partialDate))
-            return new DateTime(currentYear, partialDate.Month, partialDate.Day);
-
-        return null;
-    }
+    internal static DateTime? ParseDueDate(string? dueDateString) => DueDateParser.Parse(dueDateString);
 
     private async Task<int> HandleListAsync(string name)
     {

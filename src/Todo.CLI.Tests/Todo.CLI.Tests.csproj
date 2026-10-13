@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Todo.CLI\Todo.CLI.csproj" />
+    <ProjectReference Include="..\Todo.Tui\Todo.Tui.csproj" />
   </ItemGroup>
 
 </Project>

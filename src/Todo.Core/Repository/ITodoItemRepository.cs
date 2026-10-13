@@ -12,5 +12,6 @@ public interface ITodoItemRepository
     Task<IEnumerable<TodoItem>> ListByListIdAsync(string listId, bool includeCompleted);
     Task<IEnumerable<TodoItem>> ListByListNameAsync(string listName, bool includeCompleted);
     Task CompleteAsync(TodoItem item);
+    Task UpdateAsync(TodoItem item);
     Task DeleteAsync(TodoItem item);
 }
