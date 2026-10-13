@@ -3,11 +3,11 @@ using Todo.Core.Model;
 
 namespace Todo.Tui.Model;
 
-/// <summary>Glyphs used in item rows; ASCII fallbacks keep the UI usable without Unicode.</summary>
-public sealed record Glyphs(string Open, string Done, string Important, string Overdue, string Ellipsis)
+/// <summary>RowGlyphs used in item rows; ASCII fallbacks keep the UI usable without Unicode.</summary>
+public sealed record RowGlyphs(string Open, string Done, string Important, string Overdue, string Ellipsis)
 {
-    public static readonly Glyphs Unicode = new("☐", "☑", "★", "!", "…");
-    public static readonly Glyphs Ascii = new("[ ]", "[x]", "*", "!", "...");
+    public static readonly RowGlyphs Unicode = new("☐", "☑", "★", "!", "…");
+    public static readonly RowGlyphs Ascii = new("[ ]", "[x]", "*", "!", "...");
 }
 
 /// <summary>
@@ -17,7 +17,7 @@ public static class ItemFormatter
 {
     private const int MinSubjectColumns = 12;
 
-    public static string FormatRow(TodoItem item, string? listName, int width, DateTime today, Glyphs glyphs)
+    public static string FormatRow(TodoItem item, string? listName, int width, DateTime today, RowGlyphs glyphs)
     {
         var check = item.IsCompleted ? glyphs.Done : glyphs.Open;
         var star = item.IsImportant ? glyphs.Important : new string(' ', glyphs.Important.GetColumns());
@@ -37,7 +37,7 @@ public static class ItemFormatter
     /// Keeps the most useful trailing details that still leave room for the subject: due date and list, then
     /// the due date alone, then nothing.
     /// </summary>
-    private static string ChooseSuffix(TodoItem item, string? listName, int availableColumns, DateTime today, Glyphs glyphs)
+    private static string ChooseSuffix(TodoItem item, string? listName, int availableColumns, DateTime today, RowGlyphs glyphs)
     {
         foreach (var candidate in new[]
                  {
@@ -52,7 +52,7 @@ public static class ItemFormatter
         return string.Empty;
     }
 
-    public static string BuildSuffix(TodoItem item, string? listName, DateTime today, Glyphs glyphs)
+    public static string BuildSuffix(TodoItem item, string? listName, DateTime today, RowGlyphs glyphs)
     {
         var parts = new List<string>();
         if (item.DueDate is { } due)

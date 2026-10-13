@@ -262,19 +262,29 @@ public class TodoWorkspaceTests
     }
 
     [Fact]
-    public async Task GetDefaultListIdAsync_PrefersSelectedListThenServiceDefaultThenFirstList()
+    public async Task DefaultListId_PrefersSelectedListThenServiceDefaultThenFirstList()
     {
-        await LoadAsync();
         _lists.Setup(l => l.GetDefaultListAsync()).ReturnsAsync(new TodoList { Id = "L2" });
+        await LoadAsync();
 
-        Assert.Equal("L2", await _workspace.GetDefaultListIdAsync());
+        Assert.Equal("L2", _workspace.DefaultListId);
 
         _workspace.SelectList("L1");
-        Assert.Equal("L1", await _workspace.GetDefaultListIdAsync());
+        Assert.Equal("L1", _workspace.DefaultListId);
 
         _workspace.SelectList(null);
         _lists.Setup(l => l.GetDefaultListAsync()).ReturnsAsync((TodoList?)null);
-        Assert.Equal("L1", await _workspace.GetDefaultListIdAsync());
+        await _workspace.LoadAsync();
+        Assert.Equal("L1", _workspace.DefaultListId);
+    }
+
+    [Fact]
+    public async Task DefaultListId_NoLists_IsNull()
+    {
+        _lists.Setup(l => l.GetAllAsync()).ReturnsAsync(new List<TodoList>());
+        await LoadAsync();
+
+        Assert.Null(_workspace.DefaultListId);
     }
 
     [Fact]

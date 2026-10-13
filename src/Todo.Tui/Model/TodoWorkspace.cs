@@ -13,6 +13,7 @@ public sealed class TodoWorkspace
     private readonly ITodoListRepository _lists;
     private List<TodoList> _allLists = [];
     private List<TodoItem> _allItems = [];
+    private string? _serviceDefaultListId;
 
     public TodoWorkspace(ITodoItemRepository items, ITodoListRepository lists)
     {
@@ -47,8 +48,10 @@ public sealed class TodoWorkspace
     {
         var lists = (await _lists.GetAllAsync()).ToList();
         var items = (await _items.ListAllAsync(includeCompleted: true)).ToList();
+        var defaultList = await _lists.GetDefaultListAsync();
         _allLists = lists;
         _allItems = items;
+        _serviceDefaultListId = defaultList?.Id;
         if (SelectedListId is not null && lists.All(l => l.Id != SelectedListId))
             SelectedListId = null;
         Changed?.Invoke();
@@ -73,13 +76,7 @@ public sealed class TodoWorkspace
     }
 
     /// <summary>List id new items default to: the selected list, else the service default, else the first list.</summary>
-    public async Task<string?> GetDefaultListIdAsync()
-    {
-        if (SelectedListId is not null)
-            return SelectedListId;
-        var defaultList = await _lists.GetDefaultListAsync();
-        return defaultList?.Id ?? _allLists.FirstOrDefault()?.Id;
-    }
+    public string? DefaultListId => SelectedListId ?? _serviceDefaultListId ?? _allLists.FirstOrDefault()?.Id;
 
     public async Task CreateAsync(ItemDraft draft)
     {

@@ -18,7 +18,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "A fairly long subject line that will need truncating", DueDate = new DateTime(2026, 11, 5) };
 
-        var row = ItemFormatter.FormatRow(item, "Inbox", width, Today, Glyphs.Unicode);
+        var row = ItemFormatter.FormatRow(item, "Inbox", width, Today, RowGlyphs.Unicode);
 
         Assert.Equal(width, row.GetColumns());
     }
@@ -28,7 +28,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "買い物リスト買い物リスト買い物リスト" };
 
-        var row = ItemFormatter.FormatRow(item, null, 30, Today, Glyphs.Unicode);
+        var row = ItemFormatter.FormatRow(item, null, 30, Today, RowGlyphs.Unicode);
 
         Assert.Equal(30, row.GetColumns());
     }
@@ -36,8 +36,8 @@ public class ItemFormatterTests
     [Fact]
     public void FormatRow_ShowsCompletionAndImportanceAsText()
     {
-        var open = ItemFormatter.FormatRow(new TodoItem { Subject = "x" }, null, 30, Today, Glyphs.Unicode);
-        var done = ItemFormatter.FormatRow(new TodoItem { Subject = "x", IsCompleted = true, IsImportant = true }, null, 30, Today, Glyphs.Unicode);
+        var open = ItemFormatter.FormatRow(new TodoItem { Subject = "x" }, null, 30, Today, RowGlyphs.Unicode);
+        var done = ItemFormatter.FormatRow(new TodoItem { Subject = "x", IsCompleted = true, IsImportant = true }, null, 30, Today, RowGlyphs.Unicode);
 
         Assert.StartsWith("☐", open);
         Assert.StartsWith("☑ ★", done);
@@ -46,7 +46,7 @@ public class ItemFormatterTests
     [Fact]
     public void FormatRow_AsciiGlyphs_UsesNoNonAsciiCharacters()
     {
-        var row = ItemFormatter.FormatRow(new TodoItem { Subject = "x", IsCompleted = true, IsImportant = true }, null, 30, Today, Glyphs.Ascii);
+        var row = ItemFormatter.FormatRow(new TodoItem { Subject = "x", IsCompleted = true, IsImportant = true }, null, 30, Today, RowGlyphs.Ascii);
 
         Assert.All(row, c => Assert.True(c < 128));
         Assert.StartsWith("[x] *", row);
@@ -57,7 +57,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "x", DueDate = new DateTime(2026, 10, 31) };
 
-        Assert.Contains("! due 10-31", ItemFormatter.BuildSuffix(item, null, Today, Glyphs.Unicode));
+        Assert.Contains("! due 10-31", ItemFormatter.BuildSuffix(item, null, Today, RowGlyphs.Unicode));
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "x", IsCompleted = true, DueDate = new DateTime(2026, 10, 31) };
 
-        Assert.DoesNotContain("!", ItemFormatter.BuildSuffix(item, null, Today, Glyphs.Unicode));
+        Assert.DoesNotContain("!", ItemFormatter.BuildSuffix(item, null, Today, RowGlyphs.Unicode));
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "x", DueDate = Today };
 
-        var suffix = ItemFormatter.BuildSuffix(item, "Inbox", Today, Glyphs.Unicode);
+        var suffix = ItemFormatter.BuildSuffix(item, "Inbox", Today, RowGlyphs.Unicode);
 
         Assert.Equal("  due 11-01  [Inbox]", suffix);
     }
@@ -81,7 +81,7 @@ public class ItemFormatterTests
     [Fact]
     public void FormatRow_NullSubject_DoesNotThrow()
     {
-        var row = ItemFormatter.FormatRow(new TodoItem { Subject = null }, null, 20, Today, Glyphs.Unicode);
+        var row = ItemFormatter.FormatRow(new TodoItem { Subject = null }, null, 20, Today, RowGlyphs.Unicode);
 
         Assert.Equal(20, row.GetColumns());
     }
@@ -102,7 +102,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "Pay the rent", DueDate = new DateTime(2026, 11, 5) };
 
-        var row = ItemFormatter.FormatRow(item, "Household", 34, Today, Glyphs.Unicode);
+        var row = ItemFormatter.FormatRow(item, "Household", 34, Today, RowGlyphs.Unicode);
 
         Assert.Contains("due 11-05", row);
         Assert.DoesNotContain("Household", row);
@@ -117,7 +117,7 @@ public class ItemFormatterTests
     {
         var item = new TodoItem { Subject = "Pay the rent", IsImportant = true, DueDate = new DateTime(2026, 11, 5) };
 
-        var row = ItemFormatter.FormatRow(item, "Household", width, Today, Glyphs.Unicode);
+        var row = ItemFormatter.FormatRow(item, "Household", width, Today, RowGlyphs.Unicode);
 
         Assert.True(row.GetColumns() <= width);
     }
