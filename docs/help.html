@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Todo CLI Help</title>
+    <link rel="stylesheet" href="help.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header>
+      <h1>Todo CLI</h1>
+      <p>
+        Manage Microsoft To Do items from the command line or from a
+        full-screen, keyboard-driven terminal UI.
+      </p>
+      <nav aria-label="On this page">
+        <ul>
+          <li><a href="#commands">Commands</a></li>
+          <li><a href="#tui">Terminal UI</a></li>
+          <li><a href="#keys">Keys</a></li>
+          <li><a href="#form">Item form</a></li>
+          <li><a href="#alt">Alt and Option keys</a></li>
+          <li><a href="#config">Configuration</a></li>
+          <li><a href="#exit">Exit status</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main id="main">
+      <section aria-labelledby="commands">
+        <h2 id="commands">Commands</h2>
+        <p>
+          Help is available with <code>-h</code>, <code>-H</code>,
+          <code>--help</code>, <code>--HELP</code> or <code>-?</code>.
+        </p>
+        <table>
+          <caption>
+            Command-line commands
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Command</th>
+              <th scope="col">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>todo add item &lt;subject&gt;</code></td>
+              <td>
+                Add an item. Options: <code>--list &lt;name&gt;</code>,
+                <code>--star</code>,
+                <code>--due-date &lt;yyyy-MM-dd|MM-dd&gt;</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>todo add list &lt;name&gt;</code></td>
+              <td>Add a list.</td>
+            </tr>
+            <tr>
+              <td><code>todo list</code></td>
+              <td>
+                List items. Options: <code>-a</code>/<code>--all</code>,
+                <code>--no-status</code>.
+              </td>
+            </tr>
+            <tr>
+              <td><code>todo complete &lt;id&gt;</code></td>
+              <td>Mark an item as completed.</td>
+            </tr>
+            <tr>
+              <td><code>todo remove</code></td>
+              <td>Remove items.</td>
+            </tr>
+            <tr>
+              <td><code>todo tui</code></td>
+              <td>Open the terminal UI.</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <code>-o Json</code> switches the command-line commands to JSON
+          output. The first use opens a browser window to sign in to your
+          Microsoft account.
+        </p>
+      </section>
+
+      <section aria-labelledby="tui">
+        <h2 id="tui">Terminal UI</h2>
+        <p>
+          Run <code>todo tui</code>, or just <code>todo</code> in an interactive
+          terminal. The screen has a title bar, a menu bar, a context line
+          (list, counts, search, and how many items are scrolled out of view),
+          the item list, a status line and a key bar. It adapts to the terminal
+          size and shows a warning below 60 columns by 12 rows.
+        </p>
+        <p>
+          If input or output is redirected, <code>todo tui</code> exits with
+          code 2, and bare <code>todo</code> prints help instead.
+        </p>
+      </section>
+
+      <section aria-labelledby="keys">
+        <h2 id="keys">Keys</h2>
+        <p>
+          Every action works from the keyboard. Custom commands use Alt plus a
+          letter, with a Ctrl alternative that is shown instead when Alt cannot
+          be confirmed. Both always work.
+        </p>
+        <table>
+          <caption>
+            Terminal UI key bindings
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Key</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><kbd>Alt+N</kbd> / <kbd>Ctrl+N</kbd></td>
+              <td>New item</td>
+            </tr>
+            <tr>
+              <td><kbd>Alt+M</kbd> / <kbd>Ctrl+E</kbd>, <kbd>Enter</kbd></td>
+              <td>Modify the selected item</td>
+            </tr>
+            <tr>
+              <td><kbd>Space</kbd>, <kbd>Alt+C</kbd> / <kbd>Ctrl+T</kbd></td>
+              <td>Complete or reopen</td>
+            </tr>
+            <tr>
+              <td><kbd>Alt+I</kbd> / <kbd>Ctrl+P</kbd></td>
+              <td>Mark or unmark important</td>
+            </tr>
+            <tr>
+              <td><kbd>Delete</kbd>, <kbd>Alt+R</kbd> / <kbd>Ctrl+R</kbd></td>
+              <td>Remove, after confirmation</td>
+            </tr>
+            <tr>
+              <td><kbd>Alt+L</kbd> / <kbd>Ctrl+L</kbd></td>
+              <td>Choose the list shown</td>
+            </tr>
+            <tr>
+              <td><kbd>?</kbd>, <kbd>Alt+S</kbd> / <kbd>Ctrl+F</kbd></td>
+              <td>Search by subject</td>
+            </tr>
+            <tr>
+              <td><kbd>Alt+A</kbd> / <kbd>Ctrl+A</kbd></td>
+              <td>Show or hide completed items</td>
+            </tr>
+            <tr>
+              <td><kbd>Ctrl+C</kbd></td>
+              <td>Copy the selected subject (the selection in text fields)</td>
+            </tr>
+            <tr>
+              <td><kbd>F1</kbd></td>
+              <td>Help</td>
+            </tr>
+            <tr>
+              <td><kbd>F3</kbd>, <kbd>Alt+X</kbd></td>
+              <td>Exit; <kbd>F3</kbd> closes an open dialog instead</td>
+            </tr>
+            <tr>
+              <td><kbd>F5</kbd></td>
+              <td>Reload from Microsoft To Do</td>
+            </tr>
+            <tr>
+              <td>
+                <kbd>F7</kbd> / <kbd>F8</kbd>, <kbd>PgUp</kbd> / <kbd>PgDn</kbd>
+              </td>
+              <td>Page up or down</td>
+            </tr>
+            <tr>
+              <td><kbd>F10</kbd></td>
+              <td>
+                Menu bar; <kbd>Alt+T</kbd>, <kbd>Alt+F</kbd>, <kbd>Alt+E</kbd>,
+                <kbd>Alt+V</kbd>, <kbd>Alt+H</kbd> open menus
+              </td>
+            </tr>
+            <tr>
+              <td><kbd>Tab</kbd> / <kbd>Shift+Tab</kbd></td>
+              <td>Move between controls</td>
+            </tr>
+            <tr>
+              <td><kbd>Esc</kbd></td>
+              <td>
+                Cancel a dialog or close a menu; it never exits the program
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          <kbd>Ctrl+Q</kbd> is not used because terminals reserve it for flow
+          control. In a dialog, <kbd>Enter</kbd> activates
+          <strong>OK</strong> and <kbd>Esc</kbd> activates
+          <strong>Cancel</strong>.
+        </p>
+      </section>
+
+      <section aria-labelledby="form">
+        <h2 id="form">Item form</h2>
+        <ul>
+          <li><strong>Subject</strong> is required.</li>
+          <li>
+            <strong>Due date</strong> is optional: <code>yyyy-MM-dd</code> or
+            <code>MM-dd</code> (current year). Blank means none; clearing it on
+            an existing item removes the due date.
+          </li>
+          <li><strong>Important</strong> is a checkbox.</li>
+          <li>
+            <strong>List</strong> is chosen when adding. Items cannot be moved
+            between lists.
+          </li>
+        </ul>
+        <p>
+          <strong>OK</strong> stays disabled and an inline message beginning
+          with <code>!</code> is shown until the form is valid.
+        </p>
+      </section>
+
+      <section aria-labelledby="alt">
+        <h2 id="alt">Alt and Option keys on macOS</h2>
+        <p>
+          Many macOS terminals capture the Option key instead of sending it as
+          Alt. At startup the UI checks whether Alt can be relied on: for
+          Terminal.app it reads the
+          <code>useOptionAsMetaKey</code> setting of the default profile, and
+          other macOS terminals count as unconfirmed. When Alt is unconfirmed
+          the key bar and menus show the Ctrl alternatives.
+        </p>
+        <p>
+          To use Alt, enable <strong>Use Option as Meta key</strong> in your
+          terminal profile, or set <code>Tui:AltKeys</code> to <code>on</code>.
+        </p>
+      </section>
+
+      <section aria-labelledby="config">
+        <h2 id="config">Configuration</h2>
+        <p>
+          The optional <code>appsettings.json</code> next to the executable has
+          a <code>Tui</code> section. Environment variables prefixed
+          <code>TODO_</code>, with <code>__</code> as the separator, override
+          it, for example <code>TODO_Tui__AltKeys=on</code>.
+        </p>
+        <pre><code>{
+  "Tui": {
+    "AltKeys": "auto",
+    "Palette": {
+      "Background": "Black",
+      "Foreground": "White",
+      "Accent": "Blue",
+      "AccentText": "White",
+      "Selection": "White",
+      "SelectionText": "Black",
+      "Warning": "Yellow",
+      "Error": "BrightRed",
+      "Muted": "DarkGray"
+    }
+  }
+}</code></pre>
+        <ul>
+          <li>
+            <code>AltKeys</code>: <code>auto</code>, <code>on</code> or
+            <code>off</code>.
+          </li>
+          <li>
+            <code>Palette</code>: terminal color names or hex values. An
+            unrecognized color is replaced by its default and the status line
+            says so.
+          </li>
+          <li>
+            Color is never the only signal: completed items use <code>☑</code>,
+            important ones <code>★</code>, overdue ones <code>!</code>, and
+            errors begin with <code>!</code>.
+          </li>
+          <li>
+            <code>NO_COLOR</code> (any non-empty value) selects a monochrome
+            display.
+          </li>
+          <li>Without a UTF-8 locale the UI uses ASCII symbols.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="exit">
+        <h2 id="exit">Exit status</h2>
+        <table>
+          <caption>
+            Exit codes
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Code</th>
+              <th scope="col">Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>0</td>
+              <td>Success</td>
+            </tr>
+            <tr>
+              <td>1</td>
+              <td>The command or the UI failed</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>
+                <code>todo tui</code> started without an interactive terminal
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>
