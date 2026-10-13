@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Terminal.Gui.App;
+using Terminal.Gui.Configuration;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
@@ -7,6 +8,7 @@ using Terminal.Gui.Views;
 using Todo.Core.Model;
 using Todo.Tui.Input;
 using Todo.Tui.Model;
+using Todo.Tui.Theming;
 
 namespace Todo.Tui.Views;
 
@@ -21,13 +23,17 @@ public sealed class MainWindow : Window
 
     private readonly IApplication _app;
     private readonly TodoWorkspace _workspace;
-    private readonly TuiTheme _theme;
+    private TuiTheme _theme;
+    private string _themeName;
+    private readonly Func<string, TuiTheme>? _themeFactory;
+    private readonly Action<string>? _saveTheme;
     private readonly AltKeyStatus _altStatus;
     private readonly TimeSpan _flashDuration;
     private readonly RowGlyphs _glyphs;
     private readonly Func<DateTime> _clock;
     private readonly Action<Action> _uiInvoke;
 
+    private MenuBarItem[] _menuItems = [];
     private readonly Label _title;
     private readonly MenuBar _menu;
     private readonly Label _context;
@@ -51,7 +57,10 @@ public sealed class MainWindow : Window
         Func<DateTime>? clock = null,
         Action<Action>? uiInvoke = null,
         string startupNotice = "",
-        bool alreadyLoaded = false)
+        bool alreadyLoaded = false,
+        string themeName = TuiThemes.DefaultName,
+        Func<string, TuiTheme>? themeFactory = null,
+        Action<string>? saveTheme = null)
     {
         _app = app;
         _workspace = workspace;
@@ -62,16 +71,15 @@ public sealed class MainWindow : Window
         _clock = clock ?? (() => DateTime.Now);
         _uiInvoke = uiInvoke ?? (action => app.Invoke(action));
         _loaded = alreadyLoaded;
+        _themeName = themeName;
+        _themeFactory = themeFactory;
+        _saveTheme = saveTheme;
 
         Title = string.Empty;
         BorderStyle = LineStyle.None;
         Width = Dim.Fill();
         Height = Dim.Fill();
-        SetScheme(theme.Base);
-
         _title = new Label { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, CanFocus = false };
-        _title.SetScheme(theme.Accent);
-
         _menu = BuildMenu();
         _menu.Y = 1;
         _menu.Key = Key.F10;
@@ -108,8 +116,6 @@ public sealed class MainWindow : Window
             X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill(), Visible = false, CanFocus = false,
             TextAlignment = Alignment.Center, VerticalTextAlignment = Alignment.Center
         };
-        _tooSmall.SetScheme(theme.Error);
-
         Add(_title, _menu, _context, _list, _empty, _status, _keyBar, _tooSmall);
 
         ViewportChanged += (_, _) => OnWindowSized();
@@ -120,6 +126,7 @@ public sealed class MainWindow : Window
         };
         _workspace.Changed += () => Rebuild();
         Initialized += (_, _) => _list.SetFocus();
+        ApplyTheme(theme);
         Rebuild();
         ShowStatus(startupNotice);
     }
@@ -154,7 +161,7 @@ public sealed class MainWindow : Window
         MenuItem Item(string text, string help, Action action) => new(text, help, action, Key.Empty);
         string K(TuiCommand c) => CommandKeys.Text(c, _altStatus);
 
-        var bar = new MenuBar(
+        _menuItems =
         [
             new MenuBarItem("_Todo", [Item("_About...", string.Empty, ShowAbout)]),
             new MenuBarItem("_File",
@@ -175,15 +182,16 @@ public sealed class MainWindow : Window
             [
                 Item("_Lists...", K(TuiCommand.Lists), () => Execute(TuiCommand.Lists)),
                 Item("_Search...", K(TuiCommand.Search), () => Execute(TuiCommand.Search)),
-                Item("Show _Completed", K(TuiCommand.ShowCompleted), () => Execute(TuiCommand.ShowCompleted))
+                Item("Show _Completed", K(TuiCommand.ShowCompleted), () => Execute(TuiCommand.ShowCompleted)),
+                Item("T_heme...", K(TuiCommand.Theme), () => Execute(TuiCommand.Theme))
             ]),
             new MenuBarItem("_Help",
             [
                 Item("_Help", "F1", ShowHelp),
                 Item("_Keyboard Shortcuts", "F1", ShowHelp)
             ])
-        ]);
-        return bar;
+        ];
+        return new MenuBar(_menuItems);
     }
 
     private IEnumerable<(string Id, string KeyText, string Label)> BuildKeyBarEntries()
@@ -252,6 +260,7 @@ public sealed class MainWindow : Window
             case TuiCommand.Remove: RemoveItem(); break;
             case TuiCommand.Lists: ChooseList(); break;
             case TuiCommand.Search: Search(); break;
+            case TuiCommand.Theme: ChooseTheme(); break;
             case TuiCommand.ShowCompleted:
                 _workspace.SetShowCompleted(!_workspace.ShowCompleted);
                 ShowStatus(_workspace.ShowCompleted ? "Showing completed items." : "Hiding completed items.");
@@ -356,6 +365,80 @@ public sealed class MainWindow : Window
 
         _workspace.SetFilter(query);
         ShowStatus(_workspace.FilterText.Length == 0 ? "Search cleared." : $"Searching for \"{_workspace.FilterText}\".");
+    }
+
+    /// <summary>Name of the theme currently applied.</summary>
+    public string ThemeName => _themeName;
+
+    /// <summary>Applies colors to every part of the window. Dialogs opened later pick up the current theme.</summary>
+    internal void ApplyTheme(TuiTheme theme)
+    {
+        _theme = theme;
+        // Register the colors under Terminal.Gui's built-in scheme names too. Views I do not style explicitly (menu
+        // dropdowns, message boxes) look their scheme up by name and would otherwise keep the framework defaults.
+        SchemeManager.AddScheme("Base", theme.Base);
+        SchemeManager.AddScheme("Menu", theme.Accent);
+        SchemeManager.AddScheme("Dialog", theme.Dialog);
+        SchemeManager.AddScheme("Error", theme.DialogError);
+        SetScheme(theme.Base);
+        _title.SetScheme(theme.Accent);
+        _menu.SetScheme(theme.Accent);
+        foreach (var item in _menuItems)
+            item.PopoverMenu?.SetScheme(theme.Accent);
+        _tooSmall.SetScheme(theme.Error);
+        _keyBar.SetTheme(theme);
+        SetNeedsDraw();
+    }
+
+    private void SwitchTheme(string name)
+    {
+        if (_themeFactory is null)
+            return;
+        _themeName = name;
+        ApplyTheme(_themeFactory(name));
+    }
+
+    private void ChooseTheme()
+    {
+        if (_themeFactory is null)
+        {
+            ShowStatus("Themes are not available.");
+            return;
+        }
+
+        var names = TuiThemes.Names;
+        var original = _themeName;
+        var current = names.ToList().FindIndex(n => string.Equals(n, original, StringComparison.OrdinalIgnoreCase));
+
+        using var dialog = new ListPickerDialog("Choose theme", names, Math.Max(0, current), _theme);
+        // Preview on the window behind the dialog while the highlight moves; Cancel restores the original.
+        dialog.SelectionChanged += index =>
+        {
+            if (index >= 0 && index < names.Count)
+                SwitchTheme(names[index]);
+        };
+        _app.Run(dialog);
+        var confirmed = dialog.Confirmed;
+        var chosen = names[Math.Clamp(dialog.SelectedIndex, 0, names.Count - 1)];
+        _list.SetFocus();
+
+        if (!confirmed)
+        {
+            SwitchTheme(original);
+            ShowStatus("Theme unchanged.");
+            return;
+        }
+
+        SwitchTheme(chosen);
+        try
+        {
+            _saveTheme?.Invoke(chosen);
+            ShowStatus($"Theme: {chosen}.");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            ShowStatus($"! Theme applied, but could not be saved: {ex.Message}");
+        }
     }
 
     private void CopySubject()

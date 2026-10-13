@@ -89,6 +89,7 @@ public sealed class HelpDialog : OkCancelDialog
         TuiCommand.Lists => "Choose the list shown",
         TuiCommand.Search => "Search by subject",
         TuiCommand.ShowCompleted => "Show / hide completed",
+        TuiCommand.Theme => "Choose a color theme",
         _ => command.ToString()
     };
 }

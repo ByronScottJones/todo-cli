@@ -10,11 +10,12 @@ using Todo.CLI.Auth;
 using Todo.CLI;
 using System;
 
-// appsettings.json next to the executable is optional; TODO_-prefixed environment variables override it
-// (for example TODO_Tui__AltKeys=on).
+// Later sources win: appsettings.json (optional, next to the executable), then the per-user settings file the UI
+// writes when you choose a theme, then TODO_-prefixed environment variables (for example TODO_Tui__AltKeys=on).
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("appsettings.json", optional: true)
+    .AddJsonFile(Todo.Tui.UserSettingsStore.DefaultPath, optional: true)
     .AddEnvironmentVariables("TODO_")
     .Build();
 

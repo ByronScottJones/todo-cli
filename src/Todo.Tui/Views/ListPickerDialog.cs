@@ -9,6 +9,9 @@ public sealed class ListPickerDialog : OkCancelDialog
 {
     private readonly ListView _list;
 
+    /// <summary>Raised with the new index whenever the highlighted entry changes (used for live previews).</summary>
+    public event Action<int>? SelectionChanged;
+
     public ListPickerDialog(string title, IReadOnlyList<string> names, int selectedIndex, TuiTheme theme)
         : base(title, theme)
     {
@@ -25,6 +28,7 @@ public sealed class ListPickerDialog : OkCancelDialog
             e.Handled = true;
             OkButton.InvokeCommand(Terminal.Gui.Input.Command.Accept);
         };
+        _list.ValueChanged += (_, _) => SelectionChanged?.Invoke(SelectedIndex);
         Add(_list);
         FocusOnOpen(_list);
     }

@@ -12,7 +12,7 @@ public sealed class KeyBar : View
 {
     private sealed record Entry(string Id, Label Key, Label Text);
 
-    private readonly TuiTheme _theme;
+    private TuiTheme _theme;
     private readonly List<Entry> _entries = [];
 
     public KeyBar(TuiTheme theme)
@@ -27,6 +27,20 @@ public sealed class KeyBar : View
     }
 
     public int RowCount { get; private set; } = 1;
+
+    /// <summary>Switches colors without rebuilding the entries.</summary>
+    public void SetTheme(TuiTheme theme)
+    {
+        _theme = theme;
+        SetScheme(theme.Accent);
+        foreach (var entry in _entries)
+        {
+            entry.Key.SetScheme(theme.KeyHint);
+            entry.Text.SetScheme(theme.Accent);
+        }
+
+        SetNeedsDraw();
+    }
 
     public IReadOnlyList<string> EntryIds => _entries.Select(e => e.Id).ToList();
 

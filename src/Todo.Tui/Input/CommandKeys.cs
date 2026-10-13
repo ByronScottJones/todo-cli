@@ -13,7 +13,8 @@ public enum TuiCommand
     Remove,
     Lists,
     Search,
-    ShowCompleted
+    ShowCompleted,
+    Theme
 }
 
 /// <summary>
@@ -34,7 +35,8 @@ public static class CommandKeys
         [TuiCommand.Remove] = new('R', 'R', "Remove"),
         [TuiCommand.Lists] = new('L', 'L', "Lists"),
         [TuiCommand.Search] = new('S', 'F', "Search"),
-        [TuiCommand.ShowCompleted] = new('A', 'A', "All/Open")
+        [TuiCommand.ShowCompleted] = new('A', 'A', "All/Open"),
+        [TuiCommand.Theme] = new('O', 'O', "Theme")
     };
 
     public static string Label(TuiCommand command) => Bindings[command].Label;

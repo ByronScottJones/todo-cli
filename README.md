@@ -148,6 +148,7 @@ code 2 and a message. Bare `todo` then prints help instead.
 | `Alt+L` / `Ctrl+L` | Choose the list shown |
 | `?`, `Alt+S` / `Ctrl+F` | Search by subject |
 | `Alt+A` / `Ctrl+A` | Show or hide completed items |
+| `Alt+O` / `Ctrl+O` | Choose a color theme |
 | `Ctrl+C` | Copy the selected subject |
 | `F1` | Help |
 | `F3`, `Alt+X` | Exit (`F3` closes an open dialog instead) |
@@ -182,35 +183,80 @@ bar and menus show the Ctrl alternatives. Both sets of keys always work.
 To use Alt on macOS, enable **Use Option as Meta key** in your terminal profile,
 or force the behavior with the `Tui:AltKeys` setting below.
 
+### Themes
+
+Choose a theme with **View > Theme...** or `Alt+O` / `Ctrl+O`. The colors
+preview as you move through the list; `Enter` applies and saves the choice,
+`Esc` restores the previous theme.
+
+| Theme | Notes |
+| --- | --- |
+| Default | 16-color friendly: white on black, blue bars, light gray dialogs |
+| One Dark Pro | `#282c34` background |
+| Dracula | `#282a36` background |
+| Tokyo Night | `#1a1b26` background |
+| Catppuccin Mocha | `#1e1e2e` background |
+| GitHub Dark | `#0d1117` background |
+| Night Owl | `#011627` background |
+| Gruvbox Material | `#282828` background |
+| SynthWave '84 | `#262335` background |
+
+Terminals without true-color support approximate the hex colors with the nearest
+of their 16 or 256 colors, so the themes look best in a true-color terminal.
+
+Every theme is readable by construction: each text color is checked against the
+background it is drawn on and, if it is too faint, its lightness is adjusted
+(keeping its hue) until it reaches a 4.5:1 contrast ratio (3:1 for dimmed text
+such as disabled controls). That applies to your own palette entries too.
+
+For the built-in themes, the background, foreground, the two highlight colors
+and the comment color come from the theme's editor palette: the "function" color
+is used for the title, menu and key bars and for highlighted dialog controls,
+the "keyword" color for the selected row and menu item, and the comment color
+for dimmed text. The roles those palettes do not define are derived in the
+perceptual OKLCH color space so they match the theme:
+
+- **Dialog surface**: the background, slightly lighter, with the same hue.
+- **Warning** (shortcut letters) and **error** (messages): amber and red with
+  the same visual weight as the theme's highlights. They also differ in
+  lightness, not just hue, so they stay distinguishable with red-green color
+  blindness.
+
 ### Configuration
 
-The UI reads the `Tui` section of `appsettings.json` next to the executable. The
-file is optional. Any setting can be overridden with an environment variable
-prefixed `TODO_` and `__` as the separator, for example `TODO_Tui__AltKeys=on`.
+Settings are read from, in increasing priority:
+
+1. `appsettings.json` next to the executable (optional).
+2. The per-user settings file the UI writes when you choose a theme:
+   `~/Library/Application Support/todo/settings.json` on macOS,
+   `~/.config/todo/settings.json` on Linux, `%APPDATA%\todo\settings.json` on
+   Windows.
+3. Environment variables prefixed `TODO_`, with `__` as the separator, for
+   example `TODO_Tui__Theme=Dracula` or `TODO_Tui__AltKeys=on`.
 
 ```json
 {
   "Tui": {
     "AltKeys": "auto",
+    "Theme": "Dracula",
     "Palette": {
-      "Background": "Black",
-      "Foreground": "White",
-      "Accent": "Blue",
-      "AccentText": "White",
-      "Selection": "White",
-      "SelectionText": "Black",
-      "Warning": "Yellow",
-      "Error": "BrightRed",
-      "Muted": "DarkGray"
+      "Accent": "#7aa2f7"
     }
   }
 }
 ```
 
 - `AltKeys`: `auto` (detect), `on` (trust Alt) or `off` (advertise Ctrl keys).
-- `Palette`: terminal color names (for example `Black`, `BrightRed`, `DarkGray`)
-  or hex values. An unrecognized color is replaced by its default, and the UI
-  says so in the status line.
+- `Theme`: a theme name from the table above. Case, spaces and punctuation are
+  ignored, so `tokyo-night` works. An unknown name falls back to Default, and
+  the status line says so.
+- `Palette`: optional single-color overrides applied on top of the chosen theme.
+  The entries are `Background`, `Foreground`, `Accent`, `AccentText`,
+  `Selection`, `SelectionText`, `Warning`, `Error`, `Muted`, `DialogBackground`
+  and `DialogText`. Values are terminal color names (for example `Black`,
+  `BrightRed`) or hex. An unrecognized color is replaced by its default, and the
+  UI says so in the status line. Do not list the whole palette in
+  `appsettings.json`: it would override every theme.
 - Colors are never the only signal: completed items use `☑`, important ones `★`,
   overdue ones `!`, and errors begin with `!`.
 - Set `NO_COLOR` to any non-empty value for a monochrome display. Without a

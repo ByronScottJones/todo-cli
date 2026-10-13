@@ -21,6 +21,7 @@
           <li><a href="#keys">Keys</a></li>
           <li><a href="#form">Item form</a></li>
           <li><a href="#alt">Alt and Option keys</a></li>
+          <li><a href="#themes">Themes</a></li>
           <li><a href="#config">Configuration</a></li>
           <li><a href="#exit">Exit status</a></li>
         </ul>
@@ -235,27 +236,65 @@
         </p>
       </section>
 
+      <section aria-labelledby="themes">
+        <h2 id="themes">Themes</h2>
+        <p>
+          Choose a theme with <strong>View &gt; Theme...</strong> or
+          <kbd>Alt+O</kbd> / <kbd>Ctrl+O</kbd>. The colors preview as you move
+          through the list; <kbd>Enter</kbd> applies and saves the choice,
+          <kbd>Esc</kbd> restores the previous theme.
+        </p>
+        <ul>
+          <li>Default (16-color friendly)</li>
+          <li>One Dark Pro</li>
+          <li>Dracula</li>
+          <li>Tokyo Night</li>
+          <li>Catppuccin Mocha</li>
+          <li>GitHub Dark</li>
+          <li>Night Owl</li>
+          <li>Gruvbox Material</li>
+          <li>SynthWave '84</li>
+        </ul>
+        <p>
+          Every text color is checked against the background it is drawn on and,
+          if too faint, its lightness is adjusted (keeping its hue) until it
+          reaches a 4.5:1 contrast ratio (3:1 for dimmed text). This applies to
+          your own palette entries too. Terminals without true-color support
+          approximate the colors.
+        </p>
+        <p>
+          Warning and error colors are derived in the perceptual OKLCH color
+          space from each theme's highlights, and differ in lightness as well as
+          hue so they stay distinguishable with red-green color blindness.
+        </p>
+      </section>
+
       <section aria-labelledby="config">
         <h2 id="config">Configuration</h2>
-        <p>
-          The optional <code>appsettings.json</code> next to the executable has
-          a <code>Tui</code> section. Environment variables prefixed
-          <code>TODO_</code>, with <code>__</code> as the separator, override
-          it, for example <code>TODO_Tui__AltKeys=on</code>.
-        </p>
+        <p>Settings are read from, in increasing priority:</p>
+        <ol>
+          <li>
+            <code>appsettings.json</code> next to the executable (optional).
+          </li>
+          <li>
+            The per-user file written when you choose a theme:
+            <code>~/Library/Application Support/todo/settings.json</code>
+            (macOS), <code>~/.config/todo/settings.json</code> (Linux),
+            <code>%APPDATA%\todo\settings.json</code>
+            (Windows).
+          </li>
+          <li>
+            Environment variables prefixed <code>TODO_</code> with
+            <code>__</code> as the separator, for example
+            <code>TODO_Tui__Theme=Dracula</code>.
+          </li>
+        </ol>
         <pre><code>{
   "Tui": {
     "AltKeys": "auto",
+    "Theme": "Dracula",
     "Palette": {
-      "Background": "Black",
-      "Foreground": "White",
-      "Accent": "Blue",
-      "AccentText": "White",
-      "Selection": "White",
-      "SelectionText": "Black",
-      "Warning": "Yellow",
-      "Error": "BrightRed",
-      "Muted": "DarkGray"
+      "Accent": "#7aa2f7"
     }
   }
 }</code></pre>
@@ -265,9 +304,19 @@
             <code>off</code>.
           </li>
           <li>
-            <code>Palette</code>: terminal color names or hex values. An
-            unrecognized color is replaced by its default and the status line
+            <code>Theme</code>: a theme name. Case, spaces and punctuation are
+            ignored. An unknown name falls back to Default and the status line
             says so.
+          </li>
+          <li>
+            <code>Palette</code>: optional single-color overrides on top of the
+            theme: <code>Background</code>, <code>Foreground</code>,
+            <code>Accent</code>, <code>AccentText</code>,
+            <code>Selection</code>, <code>SelectionText</code>,
+            <code>Warning</code>, <code>Error</code>, <code>Muted</code>,
+            <code>DialogBackground</code>, <code>DialogText</code>. Do not list
+            the whole palette in <code>appsettings.json</code>: it would
+            override every theme.
           </li>
           <li>
             Color is never the only signal: completed items use <code>☑</code>,

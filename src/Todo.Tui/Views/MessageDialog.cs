@@ -10,7 +10,7 @@ public sealed class MessageDialog : OkCancelDialog
         : base(title, theme)
     {
         if (isError)
-            SetScheme(theme.Error);
+            SetScheme(theme.DialogError);
 
         Width = Dim.Percent(60);
         Height = Dim.Auto(DimAutoStyle.Content, minimumContentDim: Dim.Absolute(7));

@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Terminal.Gui.App;
+using Terminal.Gui.Drivers;
+using Terminal.Gui.Drawing;
+using Attribute = Terminal.Gui.Drawing.Attribute;
 using Terminal.Gui.Input;
 using Todo.Tui;
 using Todo.Tui.Input;
@@ -38,6 +41,12 @@ internal sealed class UiSession : IDisposable
 
     public IApplication App { get; }
 
+    public List<string> SavedThemes { get; init; } = [];
+
+    public TuiSettings Settings { get; init; } = TuiSettings.From(null, null);
+
+    private readonly Dictionary<string, object?> _samples = new();
+
     public MainWindow Window { get; }
 
     public FakeTodoService Service { get; }
@@ -50,7 +59,9 @@ internal sealed class UiSession : IDisposable
         int height = 24,
         AltKeyStatus alt = AltKeyStatus.Confirmed,
         RowGlyphs? glyphs = null,
-        bool noColor = false)
+        bool noColor = false,
+        string themeName = "Default",
+        Action<string>? saveTheme = null)
     {
         service ??= new FakeTodoService();
         var workspace = new TodoWorkspace(service, service);
@@ -60,11 +71,16 @@ internal sealed class UiSession : IDisposable
         app.Init("ansi");
         app.Driver!.SetScreenSize(width, height);
         TuiKeyboard.Configure(app);
-        var theme = TuiTheme.Create(TuiSettings.From(null, noColor ? "1" : null));
+        var settings = TuiSettings.From(null, noColor ? "1" : null).WithTheme(themeName);
+        var theme = TuiTheme.Create(settings);
+        var saved = new List<string>();
         var window = new MainWindow(
             app, workspace, theme, alt, glyphs ?? RowGlyphs.Unicode, TimeSpan.Zero,
-            () => new DateTime(2026, 11, 1), alreadyLoaded: true);
-        return new UiSession(app, window, service, workspace);
+            () => new DateTime(2026, 11, 1), alreadyLoaded: true,
+            themeName: settings.ThemeName,
+            themeFactory: name => TuiTheme.Create(settings.WithTheme(name)),
+            saveTheme: saveTheme ?? saved.Add);
+        return new UiSession(app, window, service, workspace) { SavedThemes = saved, Settings = settings };
     }
 
     public string Screen(string name) => _screens[name];
@@ -93,6 +109,40 @@ internal sealed class UiSession : IDisposable
         _screens[name] = App.Driver!.ToString() + $"\n[focus: {focused?.GetType().Name}]\n[top: {App.TopRunnable?.GetType().Name}]";
         return true;
     });
+
+    /// <summary>Reads something from the driver (cell colors, text positions) after forcing a fresh draw.</summary>
+    public UiSession Sample(string name, Func<IDriver, object?> read) => Step(() =>
+    {
+        App.LayoutAndDraw(true);
+        _samples[name] = read(App.Driver!);
+        return true;
+    });
+
+    public T Sampled<T>(string name) => (T)_samples[name]!;
+
+    /// <summary>Column and row where <paramref name="text"/> first appears on screen.</summary>
+    public static (int Col, int Row)? Find(IDriver driver, string text)
+    {
+        for (var row = 0; row < driver.Rows; row++)
+        {
+            var cells = Enumerable.Range(0, driver.Cols).Select(c => driver.Contents![row, c].Grapheme ?? " ").ToList();
+            var line = string.Concat(cells);
+            var index = line.IndexOf(text, StringComparison.Ordinal);
+            if (index >= 0 && cells.Take(index).All(c => c.Length <= 1))
+                return (index, row);
+        }
+
+        return null;
+    }
+
+    public static Attribute AttributeAt(IDriver driver, int col, int row) =>
+        driver.Contents![row, col].Attribute ?? throw new InvalidOperationException($"No attribute at {col},{row}");
+
+    public static Attribute AttributeOf(IDriver driver, string text)
+    {
+        var (col, row) = Find(driver, text) ?? throw new InvalidOperationException($"'{text}' is not on screen.");
+        return AttributeAt(driver, col, row);
+    }
 
     public UiSession WaitUntil(Func<bool> condition) => Step(condition);
 

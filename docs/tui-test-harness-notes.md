@@ -84,7 +84,26 @@ focus restored to the list after a dialog, Esc/F3 behavior, menu opening (F10,
 Alt+F), modal flows (create, edit, delete confirm, search, list picker, help),
 error dialogs when the service throws.
 
-### 2.5 Known gaps of the in-process approach
+### 2.5 Reading colors back (added after the theming work)
+
+`ToString()` is characters only, but `app.Driver.Contents[row, col]` is a `Cell`
+with a nullable `Attribute` (foreground, background, style). Reading it showed
+things a text dump cannot:
+
+- the title bar, key bar and dialogs really use the theme colors;
+- a **menu dropdown was rendering Terminal.Gui's default colors** because
+  popover menus look their scheme up by name and ignored the scheme set on the
+  view (fixed by registering schemes under the built-in names);
+- the contrast of a focused button can be asserted numerically (WCAG ratio of
+  the cell's foreground and background), which turned "hard to read" into a
+  test.
+
+Helpers worth copying into the MCP service: find text on screen (column, row),
+read the attribute at a cell, compute contrast. Beware that named colors are
+framework-specific (`DarkGray` was lighter than `Gray`), so tests should compare
+resolved RGB values.
+
+### 2.6 Known gaps of the in-process approach
 
 - Plain text only: no colors, text styles, or cursor position. Color-blind
   palette and NO_COLOR behavior cannot be asserted from `ToString()`. The driver

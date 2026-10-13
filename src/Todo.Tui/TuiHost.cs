@@ -70,7 +70,10 @@ public static class TuiHost
 
             using var window = new MainWindow(
                 app, workspace, theme, altStatus, glyphs, FlashDuration,
-                startupNotice: BuildStartupNotice(theme, altStatus, settings), alreadyLoaded: true);
+                startupNotice: BuildStartupNotice(theme, altStatus, settings), alreadyLoaded: true,
+                themeName: settings.ThemeName,
+                themeFactory: name => TuiTheme.Create(settings.WithTheme(name)),
+                saveTheme: new UserSettingsStore(UserSettingsStore.DefaultPath).SaveTheme);
             try
             {
                 app.Run(window);

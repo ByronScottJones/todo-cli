@@ -95,7 +95,7 @@ public sealed class ItemDialog : OkCancelDialog
     private Label ErrorLabel(int y)
     {
         var label = new Label { Text = string.Empty, X = 1, Y = y, Width = Dim.Fill(1) };
-        label.SetScheme(_theme.Error);
+        label.SetScheme(_theme.DialogError);
         Add(label);
         return label;
     }

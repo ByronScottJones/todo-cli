@@ -91,6 +91,9 @@ Search by subject.
 .BR Alt+A " / " Ctrl+A
 Show or hide completed items.
 .TP
+.BR Alt+O " / " Ctrl+O
+Choose a color theme. The colors preview as the selection moves; Enter applies and saves, Esc restores.
+.TP
 .B Ctrl+C
 Copy the selected subject. In text fields it copies the selection.
 .TP
@@ -126,9 +129,16 @@ Optional, next to the executable. The
 .B Tui
 section sets
 .B AltKeys
-(\fBauto\fR, \fBon\fR, \fBoff\fR) and a
+(\fBauto\fR, \fBon\fR, \fBoff\fR),
+.B Theme
+(\fBDefault\fR, \fBOne Dark Pro\fR, \fBDracula\fR, \fBTokyo Night\fR, \fBCatppuccin Mocha\fR,
+\fBGitHub Dark\fR, \fBNight Owl\fR, \fBGruvbox Material\fR, \fBSynthWave '84\fR) and optional
 .B Palette
-of color names.
+overrides of single colors (names or hex).
+.TP
+.I ~/Library/Application Support/todo/settings.json
+Per-user settings written when a theme is chosen in the UI (\fI~/.config/todo/settings.json\fR on Linux,
+\fI%APPDATA%\\todo\\settings.json\fR on Windows). It overrides appsettings.json.
 .SH ENVIRONMENT
 .TP
 .BI TODO_ name

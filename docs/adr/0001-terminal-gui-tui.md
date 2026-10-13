@@ -41,6 +41,28 @@ Add a `Todo.Tui` project built on
 - **Configuration:** the palette and Alt-key mode come from `appsettings.json`
   and `TODO_` environment variables, not from code. `NO_COLOR` is respected.
 
+## Theming (addendum)
+
+- **Built-in themes** (One Dark Pro, Dracula, Tokyo Night, Catppuccin Mocha,
+  GitHub Dark, Night Owl, Gruvbox Material, SynthWave '84) are chosen with
+  `Tui:Theme` or from the UI (`Alt+O`), with a live preview. The choice is
+  persisted in a per-user settings file, not in `appsettings.json`, which may be
+  read-only or shared.
+- **Role mapping:** the themes' "function" color drives the bars and highlighted
+  dialog controls and their "keyword" color the selected row; roles the
+  published palettes lack are derived in OKLCH (see
+  `Todo.Tui.Theming.TuiThemes.Derive`) so they harmonize and meet contrast
+  targets.
+- **Readability is enforced, not hoped for:** every foreground/background pair
+  is raised to WCAG AA contrast by moving only its lightness. This fixed
+  unreadable yellow-on-white highlighted buttons and covers user palettes.
+- **Scheme names:** colors are also registered under Terminal.Gui's built-in
+  scheme names (`Base`, `Menu`, `Dialog`, `Error`), because popover menus and
+  message boxes look their scheme up by name and ignored the scheme set directly
+  on the view.
+- **Named colors:** Terminal.Gui's `DarkGray` is lighter than its `Gray`, so the
+  built-in themes use hex values.
+
 ## Alternatives considered
 
 - **Spectre.Console / Inquirer-style prompts:** simple, but not a full-screen,
