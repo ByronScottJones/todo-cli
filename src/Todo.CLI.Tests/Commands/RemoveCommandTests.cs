@@ -289,7 +289,7 @@ public class RemoveCommandTests
         var listName = "Non-existent List";
 
         _mockListRepository.Setup(r => r.GetByNameAsync(listName))
-            .ReturnsAsync((TodoList)null);
+            .ReturnsAsync((TodoList?)null);
 
         var command = new RemoveCommand(_serviceProvider);
         var handler = RemoveCommandHandler.List.Create(_serviceProvider);

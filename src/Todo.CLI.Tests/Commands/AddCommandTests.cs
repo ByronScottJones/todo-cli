@@ -122,7 +122,7 @@ public class AddCommandTests
         var subject = "Test Item";
 
         _mockListRepository.Setup(r => r.GetByNameAsync(listName))
-            .ReturnsAsync((TodoList)null);
+            .ReturnsAsync((TodoList?)null);
 
         var command = new AddCommand(_serviceProvider);
         var handler = AddCommandHandler.Item.Create(_serviceProvider);
@@ -168,7 +168,7 @@ public class AddCommandTests
         var subject = "Test Item";
 
         _mockListRepository.Setup(r => r.GetDefaultListAsync())
-            .ReturnsAsync((TodoList)null);
+            .ReturnsAsync((TodoList?)null);
 
         var command = new AddCommand(_serviceProvider);
         var handler = AddCommandHandler.Item.Create(_serviceProvider);

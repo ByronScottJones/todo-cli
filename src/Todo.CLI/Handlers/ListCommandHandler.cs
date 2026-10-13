@@ -13,12 +13,12 @@ public class ListCommandHandler
     private const char TodoBullet = '-';
     private const char CompletedBullet = '\u2713'; // Sqrt - check mark
 
-    public static Func<bool, bool, DateTime?, string, Task> Create(IServiceProvider serviceProvider)
+    public static Func<bool, bool, DateTime?, string?, Task> Create(IServiceProvider serviceProvider)
     {
         return (all, noStatus, olderThan, listName) => Execute(serviceProvider, all, noStatus, olderThan, listName);
     }
 
-    private static async Task Execute(IServiceProvider sp, bool all, bool noStatus, DateTime? olderThan, string listName)
+    private static async Task Execute(IServiceProvider sp, bool all, bool noStatus, DateTime? olderThan, string? listName)
     {
         var userInteraction = sp.GetRequiredService<IUserInteraction>();
         var outputFormatter = userInteraction.OutputFormatter;

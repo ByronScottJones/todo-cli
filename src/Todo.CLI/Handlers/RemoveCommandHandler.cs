@@ -38,7 +38,7 @@ public class RemoveCommandHandler
 
     public class Item 
     {
-        public static Func<string[], string, DateTime?, bool, bool, Task<int>> Create(IServiceProvider serviceProvider)
+        public static Func<string[], string?, DateTime?, bool, bool, Task<int>> Create(IServiceProvider serviceProvider)
         {
             var todoItemRepository = serviceProvider.GetRequiredService<ITodoItemRepository>();
             var todoListRepository = serviceProvider.GetRequiredService<ITodoListRepository>();
@@ -74,7 +74,7 @@ public class RemoveCommandHandler
         }
     }
 
-    private async Task<int> HandleItemAsync(string[] ids, string listName, DateTime? olderThan, bool removeAll, bool completedOnly)
+    private async Task<int> HandleItemAsync(string[] ids, string? listName, DateTime? olderThan, bool removeAll, bool completedOnly)
     {
         if(ids.Length > 0)
         {
