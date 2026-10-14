@@ -1,0 +1,169 @@
+.TH TODO 1 "2026-10-13" "Todo CLI 0.2.0" "User Commands"
+.SH NAME
+todo \- manage Microsoft To Do items from the command line or a full-screen terminal UI
+.SH SYNOPSIS
+.B todo
+.RI [ command ]
+.RI [ options ]
+.br
+.B todo tui
+.br
+.B todo
+.RB { \-h | \-H | \-\-help | \-\-HELP | \-? }
+.SH DESCRIPTION
+.B todo
+reads and changes your Microsoft To Do lists. Run with a subcommand it works as a conventional command-line
+tool. Run with no arguments in an interactive terminal, or with
+.BR "todo tui" ,
+it opens a full-screen, keyboard-driven terminal UI that follows the Common User Access (CUA) conventions.
+.PP
+The first use opens a browser window to sign in to your Microsoft account. Access tokens are refreshed
+automatically.
+.SH COMMANDS
+.TP
+.BI "add item " subject
+Add an item. Options:
+.BI \-\-list " name"
+(target list),
+.B \-\-star
+(mark important),
+.BI \-\-due\-date " date"
+(\fByyyy\-MM\-dd\fR or \fBMM\-dd\fR).
+.TP
+.BI "add list " name
+Add a list.
+.TP
+.B list
+List items. Options:
+.BR \-a ", " \-\-all
+(include completed),
+.B \-\-no\-status
+and
+.BR \-\-older\-than .
+.TP
+.BI complete " id"
+Mark an item as completed.
+.TP
+.B remove
+Remove items.
+.TP
+.B tui
+Open the terminal UI.
+.SH OPTIONS
+.TP
+.BR \-o ", " \-\-output " " \fIInteractive\fR|\fIJson\fR
+Output format for the command-line commands.
+.TP
+.BR \-h ", " \-H ", " \-\-help ", " \-\-HELP ", " \-?
+Show help.
+.TP
+.B \-\-version
+Show version information.
+.SH TERMINAL UI
+The UI has a title bar, a menu bar, a context line (list, counts, filter, and how many items are scrolled out
+of view), the item list, a status line, and a key bar of the commands available. It adapts to the terminal
+size and shows a warning below 60 columns by 12 rows.
+.SS Keys
+Custom commands use Alt plus a letter. Where Alt cannot be confirmed, the Ctrl alternative is shown instead.
+Both always work.
+.TP
+.BR Alt+N " / " Ctrl+N
+New item.
+.TP
+.BR Alt+M " / " Ctrl+E ", " Enter
+Modify the selected item.
+.TP
+.BR Space ", " Alt+C " / " Ctrl+T
+Complete or reopen the selected item.
+.TP
+.BR Alt+I " / " Ctrl+P
+Mark or unmark the item as important.
+.TP
+.BR Delete ", " Alt+R " / " Ctrl+R
+Remove the item after confirmation.
+.TP
+.BR Alt+L " / " Ctrl+L
+Choose which list is shown.
+.TP
+.BR ? ", " Alt+S " / " Ctrl+F
+Search by subject.
+.TP
+.BR Alt+A " / " Ctrl+A
+Show or hide completed items.
+.TP
+.BR Alt+O " / " Ctrl+O
+Choose a color theme. The colors preview as the selection moves; Enter applies and saves, Esc restores.
+.TP
+.B Ctrl+C
+Copy the selected subject. In text fields it copies the selection.
+.TP
+.B F1
+Help.
+.TP
+.BR F3 ", " Alt+X
+Exit. In a dialog, F3 closes the dialog.
+.TP
+.B F5
+Reload from Microsoft To Do.
+.TP
+.BR F7 ", " F8 ", " PgUp ", " PgDn
+Page up or down.
+.TP
+.B F10
+Move to the menu bar. Alt+T, Alt+F, Alt+E, Alt+V and Alt+H open menus.
+.TP
+.BR Tab ", " Shift+Tab
+Move between controls.
+.TP
+.B Esc
+Cancel a dialog or close a menu. It does not exit the program.
+.PP
+Ctrl+Q is not used because terminals reserve it for flow control.
+.SS Item form
+Subject is required. Due date is optional (\fByyyy\-MM\-dd\fR or \fBMM\-dd\fR); an empty value clears it.
+The list can only be chosen when adding. OK stays disabled until the form is valid.
+.SH FILES
+.TP
+.I appsettings.json
+Optional, next to the executable. The
+.B Tui
+section sets
+.B AltKeys
+(\fBauto\fR, \fBon\fR, \fBoff\fR),
+.B Theme
+(\fBDefault\fR, \fBOne Dark Pro\fR, \fBDracula\fR, \fBTokyo Night\fR, \fBCatppuccin Mocha\fR,
+\fBGitHub Dark\fR, \fBNight Owl\fR, \fBGruvbox Material\fR, \fBSynthWave '84\fR) and optional
+.B Palette
+overrides of single colors (names or hex).
+.TP
+.I ~/Library/Application Support/todo/settings.json
+Per-user settings written when a theme is chosen in the UI (\fI~/.config/todo/settings.json\fR on Linux,
+\fI%APPDATA%\\todo\\settings.json\fR on Windows). It overrides appsettings.json.
+.SH ENVIRONMENT
+.TP
+.BI TODO_ name
+Overrides a setting from
+.IR appsettings.json ,
+using
+.B __
+as the section separator, for example
+.BR TODO_Tui__AltKeys=on .
+.TP
+.B NO_COLOR
+Any non-empty value selects a monochrome display.
+.TP
+.BR LANG ", " LC_ALL
+Without a UTF-8 locale the UI uses ASCII symbols.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+The command or the UI failed.
+.TP
+.B 2
+.B todo tui
+was started without an interactive terminal.
+.SH SEE ALSO
+README.md and docs/help.html in the source repository.

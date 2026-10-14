@@ -31,11 +31,7 @@ internal class TodoItemRepository : RepositoryBase, ITodoItemRepository
 
         if (item.DueDate.HasValue)
         {
-            newTask.DueDateTime = new DateTimeTimeZone
-            {
-                DateTime = item.DueDate.Value.ToString("yyyy-MM-ddTHH:mm:ss"),
-                TimeZone = TimeZoneInfo.Local.Id
-            };
+            newTask.DueDateTime = ToDueDateTime(item.DueDate.Value);
         }
 
         _ = await graphServiceClient.Me.Todo.Lists[item.ListId].Tasks.PostAsync(newTask);
@@ -52,6 +48,47 @@ internal class TodoItemRepository : RepositoryBase, ITodoItemRepository
             Status = TaskStatus.Completed
         });
     }
+
+    /// <summary>
+    /// Writes subject, completion, importance and due date. A null <see cref="TodoItem.DueDate"/> clears the due date.
+    /// </summary>
+    public async Task UpdateAsync(TodoItem item)
+    {
+        if (string.IsNullOrEmpty(item.ListId) || string.IsNullOrEmpty(item.Id))
+            throw new InvalidOperationException("item needs a ListId and an Id.");
+
+        var graphServiceClient = new GraphServiceClient(AuthenticationProvider);
+        await graphServiceClient.Me.Todo.Lists[item.ListId].Tasks[item.Id].PatchAsync(BuildUpdate(item));
+    }
+
+    internal static TodoTask BuildUpdate(TodoItem item)
+    {
+        var update = new TodoTask
+        {
+            Title = item.Subject,
+            Status = item.IsCompleted ? TaskStatus.Completed : TaskStatus.NotStarted,
+            Importance = item.IsImportant ? Importance.High : Importance.Normal
+        };
+
+        if (item.DueDate.HasValue)
+        {
+            update.DueDateTime = ToDueDateTime(item.DueDate.Value);
+        }
+        else
+        {
+            // Kiota omits null model properties from the payload, which would leave the old due date
+            // in place. An explicit null in AdditionalData is written as "dueDateTime": null.
+            update.AdditionalData["dueDateTime"] = null!;
+        }
+
+        return update;
+    }
+
+    private static DateTimeTimeZone ToDueDateTime(DateTime dueDate) => new()
+    {
+        DateTime = dueDate.ToString("yyyy-MM-ddTHH:mm:ss"),
+        TimeZone = TimeZoneInfo.Local.Id
+    };
 
     public async Task DeleteAsync(TodoItem item)
     {
