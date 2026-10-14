@@ -205,6 +205,7 @@ README; keep it, `docs/todo.1`, and `docs/help.html` in step with
 make help        # list targets
 make build       # restore and build, warnings as errors
 make test        # unit tests
+make fmt         # apply C# formatting fixes
 make check       # format check, Markdown lint, tests (same as CI)
 make publish     # self-contained executable for this platform
 make publish RID=linux-x64

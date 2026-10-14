@@ -1,6 +1,10 @@
 # Lint and format targets (namespace: lint/).
 
-.PHONY: lint/fmt lint/md
+.PHONY: fmt lint/fmt lint/md
+
+## Apply C# formatting and style fixes in place
+fmt:
+	$(DOTNET) format $(SOLUTION)
 
 ## Verify C# formatting and style without changing files
 lint/fmt:
