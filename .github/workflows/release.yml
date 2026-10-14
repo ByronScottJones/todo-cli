@@ -1,0 +1,93 @@
+name: Release
+
+# Build once per platform from a version tag, then attach the archives to a
+# GitHub release. Push a tag such as v0.3.0 to start a release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Run every quality gate
+        run: make check
+
+  build:
+    name: Build ${{ matrix.rid }}
+    needs: test
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { rid: win-x64, os: windows-latest, archive: zip }
+          - { rid: linux-x64, os: ubuntu-latest, archive: tar.gz }
+          - { rid: osx-x64, os: macos-latest, archive: tar.gz }
+          - { rid: osx-arm64, os: macos-latest, archive: tar.gz }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      - name: Publish self-contained executable
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          dotnet publish src/Todo.CLI -c Release -r "${{ matrix.rid }}" \
+            -o "out/${{ matrix.rid }}" -p:Version="$version" --self-contained true
+      - name: Add Linux desktop integration
+        if: matrix.rid == 'linux-x64'
+        run: |
+          mkdir -p out/linux-x64/usr/share/applications
+          cp assets/todo-cli.desktop out/linux-x64/usr/share/applications/
+          mkdir -p out/linux-x64/usr/share/icons/hicolor/scalable/apps
+          cp assets/logo.png out/linux-x64/usr/share/icons/hicolor/scalable/apps/todo-cli.png
+      - name: Archive (zip)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: Compress-Archive -Path "out/${{ matrix.rid }}/*" -DestinationPath "todo.${{ github.ref_name }}.${{ matrix.rid }}.zip"
+      - name: Archive (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        run: tar -czf "todo.${{ github.ref_name }}.${{ matrix.rid }}.tar.gz" -C "out/${{ matrix.rid }}" .
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: todo-${{ matrix.rid }}
+          path: todo.${{ github.ref_name }}.${{ matrix.rid }}.${{ matrix.archive }}
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create pre-release with generated notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --prerelease --generate-notes --verify-tag
