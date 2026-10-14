@@ -4,4 +4,4 @@ public enum OutputFormat
 {
     Interactive,
     Json
-} 
+}

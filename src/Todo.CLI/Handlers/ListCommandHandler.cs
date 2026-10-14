@@ -1,4 +1,4 @@
-﻿namespace Todo.CLI.Handlers;
+namespace Todo.CLI.Handlers;
 
 using System;
 using System.Linq;
@@ -35,7 +35,7 @@ public class ListCommandHandler
             {
                 var itemRepo = sp.GetRequiredService<ITodoItemRepository>();
                 var tasksCall = await itemRepo.ListByListIdAsync(list.Id, all);
-                if(olderThan.HasValue)
+                if (olderThan.HasValue)
                     tasksCall = tasksCall.Where(item => item.IsCompleted && item.Completed < olderThan);
                 list.Tasks = tasksCall.ToList();
                 outputFormatter.FormatList(list, noStatus);

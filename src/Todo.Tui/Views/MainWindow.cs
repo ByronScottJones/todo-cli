@@ -113,8 +113,14 @@ public sealed class MainWindow : Window
 
         _tooSmall = new Label
         {
-            X = 0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill(), Visible = false, CanFocus = false,
-            TextAlignment = Alignment.Center, VerticalTextAlignment = Alignment.Center
+            X = 0,
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Visible = false,
+            CanFocus = false,
+            TextAlignment = Alignment.Center,
+            VerticalTextAlignment = Alignment.Center
         };
         Add(_title, _menu, _context, _list, _empty, _status, _keyBar, _tooSmall);
 

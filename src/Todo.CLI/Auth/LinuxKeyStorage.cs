@@ -91,4 +91,4 @@ public class LinuxKeyStorage : IKeyStorage
             throw new InvalidOperationException("Failed to save key to Secret Service");
         }
     }
-} 
+}

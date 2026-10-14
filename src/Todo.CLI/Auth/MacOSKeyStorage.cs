@@ -93,4 +93,4 @@ public class MacOSKeyStorage : IKeyStorage
             throw new InvalidOperationException("Failed to save key to Keychain");
         }
     }
-} 
+}

@@ -1,4 +1,4 @@
-﻿namespace Todo.Core.Model;
+namespace Todo.Core.Model;
 
 public class TodoItem
 {

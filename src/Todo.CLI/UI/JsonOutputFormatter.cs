@@ -57,4 +57,4 @@ public class JsonOutputFormatter : IOutputFormatter
             item.ListId,
             noStatus ? item.Subject : item.ToString());
     }
-} 
+}

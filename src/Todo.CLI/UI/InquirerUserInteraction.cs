@@ -1,6 +1,6 @@
 using System;
-using InquirerCS;
 using System.Collections.Generic;
+using InquirerCS;
 using Todo.Core.Model;
 
 namespace Todo.CLI.UI;
@@ -43,4 +43,4 @@ public class InquirerUserInteraction : IUserInteraction
     {
         _outputFormatter.FormatSuccess(message);
     }
-} 
+}

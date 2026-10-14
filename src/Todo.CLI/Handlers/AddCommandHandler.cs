@@ -1,4 +1,4 @@
-﻿namespace Todo.CLI.Handlers;
+namespace Todo.CLI.Handlers;
 
 using System;
 using System.Threading.Tasks;

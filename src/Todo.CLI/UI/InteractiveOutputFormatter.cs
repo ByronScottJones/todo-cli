@@ -66,4 +66,4 @@ public class InteractiveOutputFormatter : IOutputFormatter
         }
         return output.ToString();
     }
-} 
+}

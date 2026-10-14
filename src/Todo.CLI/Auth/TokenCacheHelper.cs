@@ -1,7 +1,7 @@
-﻿using Microsoft.Identity.Client;
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using Microsoft.Identity.Client;
 
 namespace Todo.CLI.Auth;
 

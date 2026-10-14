@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CommandLine;
 using Todo.CLI.Handlers;
 using Todo.CLI.UI;
@@ -13,7 +13,8 @@ public class RemoveCommand : Command
         Add(new RemoveListCommand(serviceProvider));
     }
 
-    internal class RemoveItemCommand : Command {
+    internal class RemoveItemCommand : Command
+    {
 
         private static readonly Argument<string[]> IdArg =
             new("id", "The ID of the todo item(s) to remove.")
@@ -24,7 +25,7 @@ public class RemoveCommand : Command
         private static readonly Option<DateTime?> OlderThanOpt = new(["--older-than"], "Only items completed before this date.");
         private static readonly Option<bool> AllOpt = new(new[] { "--all", "-a" }, "Remove all items fitting the filter. You will be prompted before removal.");
         private static readonly Option<bool> CompletedOpt = new(new[] { "--completed", "-c" }, "Remove only completed items.");
-        
+
         public RemoveItemCommand(IServiceProvider serviceProvider) : base("item", "Deletes to do items.")
         {
             Add(IdArg);
@@ -36,7 +37,8 @@ public class RemoveCommand : Command
         }
     }
 
-    internal class RemoveListCommand : Command {
+    internal class RemoveListCommand : Command
+    {
 
         private static readonly Argument<string> NameArg = new("name", "The name of the list to remove.");
         public RemoveListCommand(IServiceProvider serviceProvider) : base("list", "Deletes to do list(s).")

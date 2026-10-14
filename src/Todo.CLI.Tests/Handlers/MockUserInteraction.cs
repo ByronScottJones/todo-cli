@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using Todo.Core.Model;
 using Todo.CLI.UI;
+using Todo.Core.Model;
 
 namespace Todo.CLI.Tests.Handlers;
 
@@ -78,4 +78,4 @@ public class MockUserInteraction : IUserInteraction
     {
         LastItems = OutputFormatter.FormatItems(items, noStatus);
     }
-} 
+}

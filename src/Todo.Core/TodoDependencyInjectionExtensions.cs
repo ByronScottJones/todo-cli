@@ -1,4 +1,4 @@
-﻿namespace Todo.Core;
+namespace Todo.Core;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph.Models;

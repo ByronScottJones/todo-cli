@@ -1,4 +1,4 @@
-﻿namespace Todo.Core.Repository;
+namespace Todo.Core.Repository;
 
 using Microsoft.Kiota.Abstractions.Authentication;
 
