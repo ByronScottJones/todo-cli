@@ -1,10 +1,11 @@
 name: Release
 
-# Build once per platform from a version tag, then attach the archives to a
-# GitHub release. Push a tag such as v0.3.0 to start a release.
+# Manual only: GitHub Actions minutes are not budgeted. Build once per platform
+# and attach the archives to a GitHub release. Start it from the Actions tab
+# and choose an existing tag such as v0.3.0 as the ref; the tag names the
+# release and sets the version.
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read

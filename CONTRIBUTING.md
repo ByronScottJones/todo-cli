@@ -23,7 +23,8 @@ make help    # list every target
 4. Run `make check`. Warnings are errors, and `dotnet format` is authoritative
    for C# style.
 5. Use short, conventional commit messages such as `feat:`, `fix:`, `docs:`.
-6. Open a pull request and fill in the template. CI must pass.
+6. Open a pull request and fill in the template. GitHub Actions are manual-only
+   here, so `make check` must pass locally.
 
 ## Tests
 

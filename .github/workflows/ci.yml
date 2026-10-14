@@ -1,10 +1,9 @@
 name: CI
 
+# Manual only: GitHub Actions minutes are not budgeted, so nothing triggers
+# automatically. Run `make check` locally before merging.
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
+  workflow_dispatch:
 
 # Least privilege: jobs only read the repository.
 permissions:
@@ -50,17 +49,3 @@ jobs:
           global-json-file: global.json
       - name: Run unit tests
         run: dotnet test src/Todo.CLI.sln -c Release
-
-  dependency-review:
-    name: Dependency review
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pull-requests: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 1
-      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
