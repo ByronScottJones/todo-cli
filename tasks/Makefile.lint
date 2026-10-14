@@ -1,0 +1,11 @@
+# Lint and format targets (namespace: lint/).
+
+.PHONY: lint/fmt lint/md
+
+## Verify C# formatting and style without changing files
+lint/fmt:
+	$(DOTNET) format $(SOLUTION) --verify-no-changes
+
+## Lint every Markdown file
+lint/md:
+	npx --yes markdownlint-cli2 '**/*.md' '#.git/**' '#**/bin/**' '#**/obj/**' '#node_modules/**'
