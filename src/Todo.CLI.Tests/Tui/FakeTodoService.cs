@@ -35,8 +35,13 @@ internal sealed class FakeTodoService : ITodoItemRepository, ITodoListRepository
     {
         var item = new TodoItem
         {
-            Id = (_nextId++).ToString(), Subject = subject, ListId = listId, IsCompleted = done,
-            IsImportant = important, DueDate = due, Status = done ? "Completed" : "NotStarted"
+            Id = (_nextId++).ToString(),
+            Subject = subject,
+            ListId = listId,
+            IsCompleted = done,
+            IsImportant = important,
+            DueDate = due,
+            Status = done ? "Completed" : "NotStarted"
         };
         Items.Add(item);
         return item;
@@ -109,7 +114,14 @@ internal sealed class FakeTodoService : ITodoItemRepository, ITodoListRepository
 
     private static TodoItem Clone(TodoItem i) => new()
     {
-        Id = i.Id, Subject = i.Subject, ListId = i.ListId, IsCompleted = i.IsCompleted, IsImportant = i.IsImportant,
-        DueDate = i.DueDate, Status = i.Status, Created = i.Created, Completed = i.Completed
+        Id = i.Id,
+        Subject = i.Subject,
+        ListId = i.ListId,
+        IsCompleted = i.IsCompleted,
+        IsImportant = i.IsImportant,
+        DueDate = i.DueDate,
+        Status = i.Status,
+        Created = i.Created,
+        Completed = i.Completed
     };
 }

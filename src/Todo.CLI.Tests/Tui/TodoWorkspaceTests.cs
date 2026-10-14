@@ -30,10 +30,15 @@ public class TodoWorkspaceTests
 
     private static TodoItem Item(string id, string subject, string listId = "L1", bool done = false,
         bool important = false, DateTime? due = null) => new()
-    {
-        Id = id, Subject = subject, ListId = listId, IsCompleted = done, IsImportant = important, DueDate = due,
-        Status = done ? "Completed" : "NotStarted"
-    };
+        {
+            Id = id,
+            Subject = subject,
+            ListId = listId,
+            IsCompleted = done,
+            IsImportant = important,
+            DueDate = due,
+            Status = done ? "Completed" : "NotStarted"
+        };
 
     private async Task LoadAsync(params TodoItem[] items)
     {

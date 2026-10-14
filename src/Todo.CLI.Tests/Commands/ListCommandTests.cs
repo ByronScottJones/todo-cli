@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Todo.CLI.Commands;
@@ -162,4 +162,4 @@ public class ListCommandTests
         _mockListRepository.Verify(r => r.GetByNameAsync(listName), Times.Once);
         _mockItemRepository.Verify(r => r.ListByListIdAsync(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
     }
-} 
+}

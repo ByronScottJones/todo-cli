@@ -214,7 +214,7 @@ public class CompleteCommandTests
         _mockRepository.Setup(r => r.ListAllAsync(false))
             .ReturnsAsync(items);
         _mockUserInteraction.Setup(ui => ui.SelectItems(It.IsAny<string>(), It.IsAny<IEnumerable<TodoItem>>()))
-            .Throws(new ArgumentOutOfRangeException("top", 
+            .Throws(new ArgumentOutOfRangeException("top",
                 "The value must be greater than or equal to zero and less than the console's buffer size in that dimension."));
 
         var handler = CompleteCommandHandler.Create(_serviceProvider);
@@ -225,8 +225,8 @@ public class CompleteCommandTests
         // Assert
         Assert.Equal(1, result);
         _mockUserInteraction.Verify(ui => ui.ShowError(
-            $"Too many tasks ({items.Count}) to display on the current console. Filter tasks by passing a specific list using the --list parameter, or increase buffer size of the console."), 
+            $"Too many tasks ({items.Count}) to display on the current console. Filter tasks by passing a specific list using the --list parameter, or increase buffer size of the console."),
             Times.Once);
         _mockRepository.Verify(r => r.CompleteAsync(It.IsAny<TodoItem>()), Times.Never);
     }
-} 
+}

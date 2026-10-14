@@ -1,4 +1,4 @@
-﻿namespace Todo.Core.Repository;
+namespace Todo.Core.Repository;
 
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,7 +48,7 @@ internal class TodoListRepository : RepositoryBase, ITodoListRepository
 
     public async Task<TodoList?> GetByNameAsync(string name)
     {
-        if(string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(name))
             throw new InvalidOperationException("name is required to get a list by name.");
 
         var client = new GraphServiceClient(AuthenticationProvider);

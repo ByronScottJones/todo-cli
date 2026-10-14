@@ -1,4 +1,4 @@
-﻿namespace Todo.Core.Repository;
+namespace Todo.Core.Repository;
 
 using System.Collections.Generic;
 using System.Threading.Tasks;

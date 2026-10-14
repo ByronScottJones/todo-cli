@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Terminal.Gui.App;
-using Terminal.Gui.Drivers;
 using Terminal.Gui.Drawing;
-using Attribute = Terminal.Gui.Drawing.Attribute;
+using Terminal.Gui.Drivers;
 using Terminal.Gui.Input;
 using Todo.Tui;
 using Todo.Tui.Input;
 using Todo.Tui.Model;
 using Todo.Tui.Views;
 using Xunit;
+using Attribute = Terminal.Gui.Drawing.Attribute;
 
 namespace Todo.CLI.Tests.Tui;
 

@@ -1,11 +1,11 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Todo.CLI.UI;
 using Todo.Core.Model;
 using Todo.Core.Repository;
-using Todo.CLI.UI;
-using System.Collections.Generic;
 
 namespace Todo.CLI.Handlers;
 
@@ -151,7 +151,8 @@ public class CompleteCommandHandler
             }
         } while (!done);
 
-        if(done) {
+        if (done)
+        {
             _userInteraction.ShowSuccess($"Completed {completedCount} items.");
         }
     }

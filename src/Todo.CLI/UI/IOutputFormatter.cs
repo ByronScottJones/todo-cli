@@ -10,4 +10,4 @@ public interface IOutputFormatter
     string FormatList(TodoList list, bool noStatus);
     string FormatItem(TodoItem item, bool noStatus);
     string FormatItems(IEnumerable<TodoItem> items, bool noStatus);
-} 
+}

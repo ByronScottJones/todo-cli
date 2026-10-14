@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using Todo.Core.Model;
 using Todo.CLI.UI;
+using Todo.Core.Model;
 using Xunit;
 
 namespace Todo.CLI.Tests.UI;
@@ -191,11 +191,11 @@ public class OutputFormatterTests
         var jsonDoc = JsonDocument.Parse(result);
         var root = jsonDoc.RootElement;
         Assert.Equal(2, root.GetArrayLength());
-        
+
         var firstItem = root[0];
         Assert.Equal(_incompleteItem.Id, firstItem.GetProperty("Id").GetString());
         Assert.Equal(_incompleteItem.Subject, firstItem.GetProperty("Subject").GetString());
-        
+
         var secondItem = root[1];
         Assert.Equal(_completedItem.Id, secondItem.GetProperty("Id").GetString());
         Assert.Equal(_completedItem.Subject, secondItem.GetProperty("Subject").GetString());
@@ -325,4 +325,4 @@ public class OutputFormatterTests
         Assert.DoesNotContain("(", result);
         Assert.Contains(item.Subject, result);
     }
-} 
+}

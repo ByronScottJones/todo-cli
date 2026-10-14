@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Todo.Core.Model;
 using Microsoft.Extensions.DependencyInjection;
-using Todo.Core.Repository;
 using Todo.CLI.UI;
+using Todo.Core.Model;
+using Todo.Core.Repository;
 
 namespace Todo.CLI.Handlers;
 
@@ -24,7 +24,7 @@ public class RemoveCommandHandler
         _userInteraction = userInteraction;
     }
 
-    public class List 
+    public class List
     {
         public static Func<string, Task> Create(IServiceProvider serviceProvider)
         {
@@ -36,7 +36,7 @@ public class RemoveCommandHandler
         }
     }
 
-    public class Item 
+    public class Item
     {
         public static Func<string[], string?, DateTime?, bool, bool, Task<int>> Create(IServiceProvider serviceProvider)
         {
@@ -76,12 +76,13 @@ public class RemoveCommandHandler
 
     private async Task<int> HandleItemAsync(string[] ids, string? listName, DateTime? olderThan, bool removeAll, bool completedOnly)
     {
-        if(ids.Length > 0)
+        if (ids.Length > 0)
         {
             var items = await _todoItemRepository.ListAllAsync(includeCompleted: true);
             return await RemoveAllItems(items.Where(i => ids.Contains(i.Id)).ToList());
         }
-        else {
+        else
+        {
             // Retrieve items
             var items = (string.IsNullOrEmpty(listName)
                 ? await _todoItemRepository.ListAllAsync(includeCompleted: true)
@@ -95,7 +96,7 @@ public class RemoveCommandHandler
             if (olderThan.HasValue)
             {
                 items = items.Where(item =>
-                    item.IsCompleted && item.Completed.HasValue && 
+                    item.IsCompleted && item.Completed.HasValue &&
                     item.Completed.Value < olderThan.Value
                     )
                     .ToList();
@@ -178,7 +179,7 @@ public class RemoveCommandHandler
             catch (AggregateException agg)
             {
                 var exc = agg.InnerExceptions.First();
-                if(exc.Message.Contains("Too many retries performed"))
+                if (exc.Message.Contains("Too many retries performed"))
                 {
                     _userInteraction.ShowError($"Too many requests, rate limit hit, {itemsToDelete.Count - deletedCount} left, waiting a second and trying again...");
                     await Task.Delay(1000);
@@ -190,7 +191,8 @@ public class RemoveCommandHandler
             }
         } while (!done);
 
-        if(done) {
+        if (done)
+        {
             _userInteraction.ShowSuccess($"Deleted {deletedCount} items.");
         }
     }

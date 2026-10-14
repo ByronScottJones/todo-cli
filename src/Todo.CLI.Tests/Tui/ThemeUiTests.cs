@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Terminal.Gui.Drawing;
-using Attribute = Terminal.Gui.Drawing.Attribute;
 using Todo.Tui.Theming;
 using Todo.Tui.Views;
 using Xunit;
+using Attribute = Terminal.Gui.Drawing.Attribute;
 
 namespace Todo.CLI.Tests.Tui;
 

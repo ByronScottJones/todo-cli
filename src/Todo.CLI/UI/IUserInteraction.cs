@@ -10,4 +10,4 @@ public interface IUserInteraction
     void ShowError(string message);
     void ShowSuccess(string message);
     IOutputFormatter OutputFormatter { get; }
-} 
+}

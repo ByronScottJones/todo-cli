@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Todo.CLI.Commands;
@@ -345,4 +345,4 @@ public class RemoveCommandTests
         _mockListRepository.Verify(r => r.DeleteAsync(list), Times.Once);
         _mockUserInteraction.Verify(ui => ui.ShowError($"Error removing list: {errorMessage}"), Times.Once);
     }
-} 
+}

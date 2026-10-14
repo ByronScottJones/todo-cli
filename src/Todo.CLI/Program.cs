@@ -1,14 +1,14 @@
+using System;
 using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Todo.CLI;
+using Todo.CLI.Auth;
 using Todo.CLI.Commands;
 using Todo.CLI.UI;
 using Todo.Core;
-using Todo.CLI.Auth;
-using Todo.CLI;
-using System;
 
 // Later sources win: appsettings.json (optional, next to the executable), then the per-user settings file the UI
 // writes when you choose a theme, then TODO_-prefixed environment variables (for example TODO_Tui__AltKeys=on).
@@ -24,14 +24,14 @@ var services = new ServiceCollection()
     .AddSingleton<TodoCliConfiguration>()
     .AddSingleton(TodoCliAuthenticationProviderFactory.GetAuthenticationProvider)
     .AddTodoRepositories()
-    .AddSingleton<IUserInteraction>(sp => 
+    .AddSingleton<IUserInteraction>(sp =>
     {
         var outputFormat = OutputFormat.Interactive;
         if (args != null && args.Length > 1)
         {
             for (var i = 0; i < args.Length - 1; i++)
             {
-                if ((args[i] == "--output" || args[i] == "-o") && 
+                if ((args[i] == "--output" || args[i] == "-o") &&
                     Enum.TryParse<OutputFormat>(args[i + 1], true, out var format))
                 {
                     outputFormat = format;

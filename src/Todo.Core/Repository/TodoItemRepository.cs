@@ -1,7 +1,7 @@
-﻿using Microsoft.Graph;
-using Todo.Core.Model;
+using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Kiota.Abstractions.Authentication;
+using Todo.Core.Model;
 
 namespace Todo.Core.Repository;
 

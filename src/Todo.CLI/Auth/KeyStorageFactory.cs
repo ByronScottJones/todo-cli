@@ -11,12 +11,12 @@ public static class KeyStorageFactory
         {
             return new WindowsKeyStorage();
         }
-        
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             return new MacOSKeyStorage();
         }
-        
+
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
         {
             return new LinuxKeyStorage();
@@ -24,4 +24,4 @@ public static class KeyStorageFactory
 
         throw new PlatformNotSupportedException("Current platform does not have a supported key storage implementation.");
     }
-} 
+}

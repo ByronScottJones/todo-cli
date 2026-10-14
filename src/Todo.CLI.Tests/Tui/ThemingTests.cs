@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Terminal.Gui.Drawing;
-using Attribute = Terminal.Gui.Drawing.Attribute;
 using Todo.Tui;
 using Todo.Tui.Theming;
 using Todo.Tui.Views;
 using Xunit;
+using Attribute = Terminal.Gui.Drawing.Attribute;
 
 namespace Todo.CLI.Tests.Tui;
 
@@ -292,9 +292,17 @@ public class ThemeReadabilityTests
     {
         var palette = TuiPalette.Default with
         {
-            Background = background, Foreground = foreground, Accent = background, AccentText = foreground,
-            Selection = foreground, SelectionText = foreground, DialogBackground = background, DialogText = foreground,
-            Warning = background, Error = background, Muted = background
+            Background = background,
+            Foreground = foreground,
+            Accent = background,
+            AccentText = foreground,
+            Selection = foreground,
+            SelectionText = foreground,
+            DialogBackground = background,
+            DialogText = foreground,
+            Warning = background,
+            Error = background,
+            Muted = background
         };
         var theme = TuiTheme.Create(new TuiSettings(Todo.Tui.Input.AltKeyMode.Auto, palette, NoColor: false));
 

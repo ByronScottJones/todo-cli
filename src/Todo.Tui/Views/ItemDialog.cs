@@ -41,7 +41,9 @@ public sealed class ItemDialog : OkCancelDialog
         Add(new Label { Text = $"_Due date ({DueDateParser.FormatHint}; blank for none):", X = 1, Y = 4 });
         _dueDate = new TextField
         {
-            X = 1, Y = 5, Width = Dim.Fill(1),
+            X = 1,
+            Y = 5,
+            Width = Dim.Fill(1),
             Value = existing?.DueDate?.ToString("yyyy-MM-dd") ?? string.Empty
         };
         Add(_dueDate);
