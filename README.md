@@ -13,10 +13,6 @@
 
 A cross-platform command-line interface to interact with Microsoft To Do, built using .NET 10.
 
-## Build Status
-
-[![CI](https://github.com/ByronScottJones/todo-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ByronScottJones/todo-cli/actions/workflows/ci.yml)
-
 ## Getting Started
 
 ### Install
@@ -66,8 +62,8 @@ make publish RID=linux-x64
 make install
 ```
 
-Pushing a `v*` tag runs the release workflow, which builds all four platforms
-and attaches the archives to a GitHub pre-release.
+The release workflow (manual; run it from the Actions tab on a `v*` tag) builds
+all four platforms and attaches the archives to a GitHub pre-release.
 
 ## Usage
 
