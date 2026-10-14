@@ -8,4 +8,4 @@ lint/fmt:
 
 ## Lint every Markdown file
 lint/md:
-	npx --yes markdownlint-cli2 '**/*.md' '#.git/**' '#**/bin/**' '#**/obj/**' '#node_modules/**'
+	npx --yes markdownlint-cli2 '**/*.md' '#.git/**' '#node_modules/**'

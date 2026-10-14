@@ -1,3 +1,6 @@
+<!-- markdownlint-disable MD013 MD033 MD041 MD045 MD009 -->
+<!-- The README predates the 80-column rule and opens with an HTML logo block. -->
+
 <p align="center">
     <img 
         src="./assets/logo.png"
@@ -12,57 +15,59 @@ A cross-platform command-line interface to interact with Microsoft To Do, built 
 
 ## Build Status
 
-| Platform | Status |
-| ------ | ------------ |
-| CI | [![CI build status](https://dev.azure.com/mtseckin/todo-cli/_apis/build/status/CI)](https://dev.azure.com/mtseckin/todo-cli/_build/latest?definitionId=1) |
-| CD | [![Windows (x64) build status](https://dev.azure.com/mtseckin/todo-cli/_apis/build/status/CD)](https://dev.azure.com/mtseckin/todo-cli/_build/latest?definitionId=5)
+[![CI](https://github.com/ByronScottJones/todo-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ByronScottJones/todo-cli/actions/workflows/ci.yml)
 
 ## Getting Started
 
 ### Install
 
-If you just want to give it a spin, head over to [releases](https://github.com/mehmetseckin/todo-cli/releases/). Download a release and extract to somewhere in your `PATH`, and run `todo --help` to get started.
+If you just want to give it a spin, head over to [releases](https://github.com/ByronScottJones/todo-cli/releases/). Download a release and extract to somewhere in your `PATH`, and run `todo --help` to get started.
 
 ### Build
 
-```
+```bash
 # Clone the repository
-git clone https://github.com/mehmetseckin/todo-cli.git
+git clone https://github.com/ByronScottJones/todo-cli.git
+cd todo-cli
 
-# Navigate into the source code folder
-cd .\todo-cli\src
+# Restore, build (warnings are errors), and test
+make build
+make test
 
-# Build the project
-dotnet build
+# Run every quality gate (format check, Markdown lint, tests)
+make check
 ```
+
+Run `make help` to list every target. Without `make`, use
+`dotnet build src/Todo.CLI.sln`.
 
 ### Run
 
 The application will automatically prompt you to sign in with your Microsoft account, and ask for your consent to access your data when needed.
 
-```
+```bash
 # Run using dotnet run
-dotnet run -p .\Todo.CLI -- --help
+dotnet run --project src/Todo.CLI -- --help
 
 # Run from build output
-.\src\publish\todo.exe --help
+./src/publish/todo --help
 ```
 
-### Publish (self-contained .exe)
+### Publish (self-contained executable)
 
+```bash
+# Host platform, into src/publish
+make publish
+
+# A specific platform: win-x64, osx-x64, osx-arm64, or linux-x64
+make publish RID=linux-x64
+
+# Install the published executable into ~/.local/bin
+make install
 ```
-# Windows x64
-dotnet publish src\Todo.CLI -c Release -r win-x64 -o .\src\publish
 
-# macOS (Intel)
-dotnet publish src\Todo.CLI -c Release -r osx-x64 -o .\src\publish
-
-# macOS (Apple Silicon)
-dotnet publish src\Todo.CLI -c Release -r osx-arm64 -o .\src\publish
-
-# Linux x64
-dotnet publish src\Todo.CLI -c Release -r linux-x64 -o .\src\publish
-```
+Pushing a `v*` tag runs the release workflow, which builds all four platforms
+and attaches the archives to a GitHub pre-release.
 
 ## Usage
 
@@ -90,7 +95,7 @@ page](docs/todo.1) and the [HTML help](docs/help.html).
 
 ### Examples
 
-```
+```text
 # Add an item with a due date
 todo add item "Buy groceries" --due-date 2026-05-20
 
@@ -112,7 +117,7 @@ todo remove <task-id>
 
 ### Output Example
 
-```
+```text
 Work (3):
 - Buy groceries - NotStarted (05-20)
 ✓ Completed task - Completed (2026-05-10)
@@ -268,11 +273,18 @@ interrupting.
 
 ## Contributing
 
-Interested? You are awesome. Feel free to fork, do your thing and send a PR! Everything is appreciated.
+Interested? You are awesome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the
+workflow and [ENGINEERING.md](ENGINEERING.md) for the project specification.
+Report security problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## Code of Conduct
 
 Be nice to people, give constructive feedback, and have fun!
+
+## License
+
+Released under the [MIT License](LICENSE). The original project did not declare
+a license; if it sets one, this project will switch to it.
 
 ## Stack
 

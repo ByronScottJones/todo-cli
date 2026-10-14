@@ -1,0 +1,5 @@
+{
+  // agents/ holds verbatim copies of the shared guidance in ~/.agents, which has its own lint rules;
+  // GitHub templates start with front matter or a section heading by design.
+  "ignores": ["agents/**", ".github/ISSUE_TEMPLATE/**", ".github/PULL_REQUEST_TEMPLATE.md", "**/bin/**", "**/obj/**"]
+}
