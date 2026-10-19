@@ -1,6 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,13 +15,11 @@ public class TuiCommand : Command
     {
         _serviceProvider = serviceProvider;
         Description = "Opens the full-screen terminal UI to browse, add, edit, complete and remove to do items.";
-        this.SetHandler(RunAsync);
+        SetAction(_ => RunAsync());
     }
 
-    internal Task RunAsync(InvocationContext context) => RunTuiAsync(_serviceProvider, context);
+    internal Task<int> RunAsync() => RunTuiAsync(_serviceProvider);
 
-    internal static async Task RunTuiAsync(IServiceProvider serviceProvider, InvocationContext context)
-    {
-        context.ExitCode = await TuiHost.RunAsync(serviceProvider, serviceProvider.GetService<IConfiguration>());
-    }
+    internal static Task<int> RunTuiAsync(IServiceProvider serviceProvider) =>
+        TuiHost.RunAsync(serviceProvider, serviceProvider.GetService<IConfiguration>());
 }

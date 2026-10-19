@@ -8,13 +8,14 @@ namespace Todo.CLI.Commands;
 public class CompleteCommand : Command
 {
     private static readonly Argument<string[]> IdArg =
-        new("id", "The ID of the todo item(s) to complete.")
+        new("id")
         {
+            Description = "The ID of the todo item(s) to complete.",
             Arity = ArgumentArity.ZeroOrMore
         };
-    private static readonly Option<string> ListOpt = new(["--list", "-l"], "The name of the list to complete items from.");
-    private static readonly Option<DateTime?> OlderThanOpt = new(["--older-than"], "Only items created before this date.");
-    private static readonly Option<bool> AllOpt = new(new[] { "--all", "-a" }, "Complete all items fitting the filter. You will be prompted before removal.");
+    private static readonly Option<string> ListOpt = new("--list", "-l") { Description = "The name of the list to complete items from." };
+    private static readonly Option<DateTime?> OlderThanOpt = new("--older-than") { Description = "Only items created before this date." };
+    private static readonly Option<bool> AllOpt = new("--all", "-a") { Description = "Complete all items fitting the filter. You will be prompted before removal." };
 
     public CompleteCommand(IServiceProvider serviceProvider) : base("complete")
     {
@@ -25,6 +26,11 @@ public class CompleteCommand : Command
         Add(OlderThanOpt);
         Add(AllOpt);
 
-        this.SetHandler(CompleteCommandHandler.Create(serviceProvider), IdArg, ListOpt, OlderThanOpt, AllOpt);
+        var handler = CompleteCommandHandler.Create(serviceProvider);
+        SetAction(parseResult => handler(
+            parseResult.GetValue(IdArg) ?? [],
+            parseResult.GetValue(ListOpt),
+            parseResult.GetValue(OlderThanOpt),
+            parseResult.GetValue(AllOpt)));
     }
 }

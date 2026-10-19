@@ -1,7 +1,5 @@
 using System;
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Todo.CLI;
@@ -46,17 +44,4 @@ var serviceProvider = services.BuildServiceProvider();
 
 var todoCommand = new TodoCommand(serviceProvider);
 
-// The standard defaults, but with the full set of help aliases and without registering with dotnet-suggest.
-var parser = new CommandLineBuilder(todoCommand)
-    .UseVersionOption()
-    .UseHelp("-h", "-H", "--help", "--HELP", "-?")
-    .UseEnvironmentVariableDirective()
-    .UseParseDirective()
-    .UseSuggestDirective()
-    .UseTypoCorrections()
-    .UseParseErrorReporting()
-    .UseExceptionHandler()
-    .CancelOnProcessTermination()
-    .Build();
-
-return await parser.InvokeAsync(args);
+return await todoCommand.Parse(args).InvokeAsync();
