@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Versioning;
 using System.Security.Cryptography;
@@ -12,7 +13,16 @@ public class WindowsKeyStorage : IKeyStorage
 
     public byte[] GetKey()
     {
-        var protectedKey = File.ReadAllBytes(GetKeyPath());
+        byte[] protectedKey;
+        try
+        {
+            protectedKey = File.ReadAllBytes(GetKeyPath());
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            throw new KeyNotFoundException("No key has been saved yet.", ex);
+        }
+
         return ProtectedData.Unprotect(protectedKey, null, DataProtectionScope.CurrentUser);
     }
 

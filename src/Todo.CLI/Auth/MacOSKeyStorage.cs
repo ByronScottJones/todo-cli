@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -8,6 +9,7 @@ public class MacOSKeyStorage : IKeyStorage
 {
     private const string ServiceName = "Todo.CLI";
     private const string AccountName = "EncryptionKey";
+    private const int ErrSecItemNotFound = -25300;
 
     [DllImport("/System/Library/Frameworks/Security.framework/Security")]
     private static extern int SecKeychainFindGenericPassword(
@@ -69,7 +71,12 @@ public class MacOSKeyStorage : IKeyStorage
             }
         }
 
-        throw new InvalidOperationException("Failed to retrieve key from Keychain");
+        if (result == ErrSecItemNotFound)
+        {
+            throw new KeyNotFoundException("No key has been saved to the Keychain yet.");
+        }
+
+        throw new InvalidOperationException($"Failed to retrieve key from Keychain (status {result})");
     }
 
     public void SaveKey(byte[] key)

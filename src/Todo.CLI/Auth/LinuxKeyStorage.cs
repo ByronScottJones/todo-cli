@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -55,7 +56,7 @@ public class LinuxKeyStorage : IKeyStorage
 
         if (result == IntPtr.Zero)
         {
-            throw new InvalidOperationException("Key not found in Secret Service");
+            throw new KeyNotFoundException("Key not found in Secret Service");
         }
 
         try

@@ -97,7 +97,7 @@ known gap and appears in [section 11](#11-risks-gaps-and-future-work).
 | ID | Requirement | Verified by |
 | --- | --- | --- |
 | NFR-1 | Warnings are errors; `dotnet format` is clean. | `make build`, `make lint/fmt` in CI |
-| NFR-2 | The token cache is encrypted at rest (AES-GCM) with a key held in platform key storage, never in the cache file; tamper and wrong-key reads are rejected. Tokens are never logged or committed. | `EncryptedTokenFileTests` (encryption and key handling); no-logging by review only |
+| NFR-2 | The token cache is encrypted at rest (AES-GCM) with a key held in platform key storage, never in the cache file. On Unix the cache is `0600` in a `0700` directory. A corrupt, tampered, or wrong-key cache counts as empty (the user signs in again), and a key store failure never replaces the stored key. Tokens are never logged or committed. | `EncryptedTokenFileTests`; no-logging by review only |
 | NFR-3 | `NO_COLOR` is respected, and the UI degrades to ASCII without UTF-8. | `TerminalAndThemeTests` |
 | NFR-4 | The UI recalculates layout on resize and keeps the focused row visible. | `ScrollWindowTests`, `MainWindowTests` |
 | NFR-5 | Access tokens are refreshed per request, not captured once at startup. | `MsalAuthenticationProviderTests` |
@@ -185,13 +185,13 @@ decisions as ADRs under `docs/adr/`.
 
 MSAL acquires tokens silently, with an interactive browser fallback. The token
 cache is an AES-GCM encrypted file (`EncryptedTokenFile`, wired up by
-`TokenCacheHelper`) whose key is stored through `IKeyStorage`: DPAPI-backed
-storage on Windows, the Keychain on macOS, and `libsecret` on Linux
-(`KeyStorageFactory` selects by platform; an unsupported platform throws
-`PlatformNotSupportedException`).
-Scopes are `user.read` and `tasks.readwrite`. The default client id in
-`TodoCliConfiguration` is a public client registration, not a secret; it can be
-overridden through configuration.
+`TokenCacheHelper`) whose key is stored through `IKeyStorage` (`GetKey` throws
+`KeyNotFoundException` only when no key exists): DPAPI-backed storage on
+Windows, the Keychain on macOS, and `libsecret` on Linux (`KeyStorageFactory`
+selects by platform; an unsupported platform throws
+`PlatformNotSupportedException`). Scopes are `user.read` and
+`tasks.readwrite`. The default client id in `TodoCliConfiguration` is a public
+client registration, not a secret; it can be overridden through configuration.
 
 ### 8.2 Terminal UI
 
@@ -241,7 +241,7 @@ which is an environment limit, not a code defect.
 
 | Area | Status | Date |
 | --- | --- | --- |
-| Unit and headless UI tests | 370 pass locally with warnings as errors | 2026-10-19 |
+| Unit and headless UI tests | 379 pass locally with warnings as errors | 2026-10-19 |
 | `dotnet format --verify-no-changes` | Clean after the formatting commit | 2026-10-14 |
 | `markdownlint-cli2` | Clean | 2026-10-14 |
 | GitHub Actions workflows | Manual-only; never run (no Actions budget) | 2026-10-14 |
@@ -261,18 +261,14 @@ which is an environment limit, not a code defect.
   on it. It is manual-only because there is no Actions budget.
 - **Upstream license.** The original project has no license; this fork is MIT.
   Re-check upstream periodically and switch if it sets one.
-- **Token cache file permissions.** `EncryptedTokenFile` creates
-  `~/.todo-cli/token.cache` with the default umask (group and world readable,
-  for example mode 0664) inside a 0775 directory. The contents are encrypted
-  and the key is in platform key storage, but the file should be `0600` in a
-  `0700` directory on Unix. No test covers this because it currently fails.
-- **Corrupt token cache crashes sign-in.** An empty or truncated cache file
-  throws `OverflowException` from `EncryptedTokenFile.Read` instead of being
-  treated as "no cache" so the user signs in again. A cache encrypted under a
-  different key throws `CryptographicException` the same way.
-- **Key replaced on any key-storage error.** `GetOrCreateKey` catches every
-  failure from `GetKey` and saves a new key, which makes an existing cache
-  undecryptable if key storage failed only transiently.
+- **Key store "not found" mapping is untested.** `IKeyStorage.GetKey` must
+  throw `KeyNotFoundException` only for a missing key; the Windows, macOS
+  (`errSecItemNotFound`, -25300), and Linux implementations call native
+  stores, so that mapping is verified by review only. A wrong mapping either
+  fails sign-in (a missing key treated as an error) or silently replaces a key.
+- **Corrupt cache is dropped silently.** A tampered, truncated, or wrong-key
+  token cache is treated as empty and the user signs in again; nothing tells
+  them why. Add diagnostics if that proves confusing.
 - **Signal tests are Unix-only.** `TerminalRestoreTests` sends real signals to
   the test process and returns early on Windows.
 - **Linux key storage** depends on `libsecret`; headless servers without a
