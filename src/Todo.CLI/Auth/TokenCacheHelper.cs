@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using Microsoft.Identity.Client;
 
 namespace Todo.CLI.Auth;
@@ -12,31 +11,7 @@ static class TokenCacheHelper
         ".todo-cli"
     );
     private static readonly string CacheFilePath = Path.Combine(ConfigDir, "token.cache");
-    private static readonly object FileLock = new object();
-    private static readonly IKeyStorage KeyStorage = KeyStorageFactory.Create();
-    private static byte[]? _cachedKey;
-
-    private static byte[] GetOrCreateKey()
-    {
-        if (_cachedKey != null)
-        {
-            return _cachedKey;
-        }
-
-        try
-        {
-            _cachedKey = KeyStorage.GetKey();
-            return _cachedKey;
-        }
-        catch
-        {
-            var key = new byte[32];
-            RandomNumberGenerator.Fill(key);
-            KeyStorage.SaveKey(key);
-            _cachedKey = key;
-            return key;
-        }
-    }
+    private static readonly EncryptedTokenFile Store = new(CacheFilePath, KeyStorageFactory.Create());
 
     public static void EnableSerialization(ITokenCache tokenCache)
     {
@@ -46,23 +21,10 @@ static class TokenCacheHelper
 
     private static void BeforeAccessNotification(TokenCacheNotificationArgs args)
     {
-        lock (FileLock)
+        var plaintext = Store.Read();
+        if (plaintext != null)
         {
-            if (File.Exists(CacheFilePath))
-            {
-                var encryptedData = File.ReadAllBytes(CacheFilePath);
-                var nonce = new byte[12];
-                var tag = new byte[16];
-                var ciphertext = new byte[encryptedData.Length - 28];
-                Array.Copy(encryptedData, nonce, 12);
-                Array.Copy(encryptedData, 12, tag, 0, 16);
-                Array.Copy(encryptedData, 28, ciphertext, 0, ciphertext.Length);
-
-                using var aes = new AesGcm(GetOrCreateKey(), 16);
-                var plaintext = new byte[ciphertext.Length];
-                aes.Decrypt(nonce, ciphertext, tag, plaintext);
-                args.TokenCache.DeserializeMsalV3(plaintext);
-            }
+            args.TokenCache.DeserializeMsalV3(plaintext);
         }
     }
 
@@ -70,27 +32,7 @@ static class TokenCacheHelper
     {
         if (args.HasStateChanged)
         {
-            lock (FileLock)
-            {
-                if (!Directory.Exists(ConfigDir))
-                {
-                    Directory.CreateDirectory(ConfigDir);
-                }
-
-                var plaintext = args.TokenCache.SerializeMsalV3();
-                using var aes = new AesGcm(GetOrCreateKey(), 16);
-                var nonce = new byte[12];
-                RandomNumberGenerator.Fill(nonce);
-                var ciphertext = new byte[plaintext.Length];
-                var tag = new byte[16];
-                aes.Encrypt(nonce, plaintext, ciphertext, tag);
-
-                var encryptedData = new byte[nonce.Length + tag.Length + ciphertext.Length];
-                Array.Copy(nonce, encryptedData, nonce.Length);
-                Array.Copy(tag, 0, encryptedData, nonce.Length, tag.Length);
-                Array.Copy(ciphertext, 0, encryptedData, nonce.Length + tag.Length, ciphertext.Length);
-                File.WriteAllBytes(CacheFilePath, encryptedData);
-            }
+            Store.Write(args.TokenCache.SerializeMsalV3());
         }
     }
 }

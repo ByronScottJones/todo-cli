@@ -60,22 +60,41 @@ public static class TuiHost
             ? RowGlyphs.Unicode
             : RowGlyphs.Ascii;
 
-        Exception? failure = null;
-        // Disposing the application restores the terminal, so it must run on every exit path.
-        using (IApplication app = Application.Create())
+        // Disposing the application restores the terminal, so RunWindow disposes it on every exit path.
+        var app = Application.Create();
+        try
         {
             app.Init();
             TuiKeyboard.Configure(app);
-            using var signals = RegisterTerminationSignals(app);
+        }
+        catch
+        {
+            app.Dispose();
+            throw;
+        }
 
-            using var window = new MainWindow(
-                app, workspace, theme, altStatus, glyphs, FlashDuration,
-                startupNotice: BuildStartupNotice(theme, altStatus, settings), alreadyLoaded: true,
-                themeName: settings.ThemeName,
-                themeFactory: name => TuiTheme.Create(settings.WithTheme(name)),
-                saveTheme: new UserSettingsStore(UserSettingsStore.DefaultPath).SaveTheme);
+        return RunWindow(app, () => new MainWindow(
+            app, workspace, theme, altStatus, glyphs, FlashDuration,
+            startupNotice: BuildStartupNotice(theme, altStatus, settings), alreadyLoaded: true,
+            themeName: settings.ThemeName,
+            themeFactory: name => TuiTheme.Create(settings.WithTheme(name)),
+            saveTheme: new UserSettingsStore(UserSettingsStore.DefaultPath).SaveTheme));
+    }
+
+    /// <summary>
+    /// Runs the window and always disposes <paramref name="app"/> (restoring the terminal) and unregisters the
+    /// termination signals, whether the UI exits normally or throws. A failure is reported on stderr and returned
+    /// as <see cref="ExitFailed"/> instead of escaping with the terminal still in raw mode.
+    /// </summary>
+    internal static int RunWindow(IApplication app, Func<MainWindow> createWindow)
+    {
+        Exception? failure = null;
+        using (app)
+        {
+            using var signals = RegisterTerminationSignals(app);
             try
             {
+                using var window = createWindow();
                 app.Run(window);
             }
             catch (Exception ex)
@@ -106,7 +125,7 @@ public static class TuiHost
     /// SIGINT/SIGTERM/SIGHUP from outside the UI (kill, closing the terminal tab) stop the app cleanly so the
     /// terminal state is restored. Inside the UI, Ctrl+C is Copy, not an interrupt.
     /// </summary>
-    private static IDisposable RegisterTerminationSignals(IApplication app)
+    internal static IDisposable RegisterTerminationSignals(IApplication app)
     {
         var registrations = new List<PosixSignalRegistration>();
         foreach (var signal in new[] { PosixSignal.SIGINT, PosixSignal.SIGTERM, PosixSignal.SIGHUP })
