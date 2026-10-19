@@ -246,6 +246,7 @@ which is an environment limit, not a code defect.
 | `markdownlint-cli2` | Clean | 2026-10-14 |
 | GitHub Actions workflows | Manual-only; never run (no Actions budget) | 2026-10-14 |
 | Release workflow | Not yet exercised with a real tag | 2026-10-14 |
+| `make publish` (osx-arm64) | Succeeds; `--version`, help, and parse errors smoke-tested on the output. Other platforms only via the release workflow, never run | 2026-10-19 |
 | Real Graph and MSAL sign-in | Not verified in this session | - |
 
 ## 11. Risks, Gaps, and Future Work
@@ -258,11 +259,13 @@ which is an environment limit, not a code defect.
   re-run `CommandLineWiringTests`. The migration from 2.0 beta4 renamed the
   `[parse]` directive to `[diagram]`; `[suggest]` and the environment-variable
   directive are unchanged.
-- **`make publish` fails on trimming.** With `PublishTrimmed` on (the Release
-  default), `dotnet publish` fails with `IL2104` trim warnings from
-  `Microsoft.Kiota.Serialization.Json` and `Microsoft.IO.RecyclableMemoryStream`.
-  This predates the System.CommandLine 3 change (reproduced on `master`), so
-  release builds are broken until the trimming settings or packages are fixed.
+- **Release binaries are not trimmed.** Trimming is off (`PublishTrimmed=false`
+  in `Todo.CLI.csproj`) because `Azure.Core`, `Microsoft.Kiota.Serialization.Json`,
+  `InquirerCS`, and `Microsoft.IO.RecyclableMemoryStream` raise `IL2104` trim
+  warnings (errors here), so a trimmed build could fail at run time in Graph,
+  MSAL, or the prompts. The cost is size: a single-file osx-arm64 build is about
+  45 MB instead of about 13 MB. Re-enable trimming only after those packages
+  are trim-safe and a signed-in smoke test passes.
 - **Command-line parsing for `list` is permissive.** `todo list --bogus` treats
   `--bogus` as a list name (the optional `list-name` argument accepts it), so
   it is not a parse error.
