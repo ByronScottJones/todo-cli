@@ -3,8 +3,9 @@
 This file is always active. Apply its rules to every task, then load only the
 topic files required by the task. Do not load every topic file by default.
 
-Read [`ENGINEERING.md`](ENGINEERING.md) before changing anything. It is the
-development specification: requirements, contracts, design decisions,
+Read [`HANDOFF.md`](HANDOFF.md) for open work and working agreements, then
+[`ENGINEERING.md`](ENGINEERING.md) before changing anything. ENGINEERING.md is
+the development specification: requirements, contracts, design decisions,
 verification status, and the spec-driven workflow. Update it in the same change
 set whenever behavior, contracts, decisions, or verification status change.
 
