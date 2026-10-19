@@ -59,7 +59,7 @@ license; see [LICENSE](LICENSE).
 | Concern | Choice |
 | --- | --- |
 | Language and runtime | C#, .NET 10 (`net10.0`), SDK pinned in `global.json` |
-| Command line | `System.CommandLine` 2.0.0-beta4 |
+| Command line | `System.CommandLine` 3.0.0-rc.2 (pre-release, chosen deliberately) |
 | Terminal UI | `Terminal.Gui` 2.5.0 |
 | Microsoft To Do | Microsoft Graph SDK; MSAL for sign-in |
 | Prompts | `phu.Inquirer.cs` |
@@ -80,12 +80,12 @@ known gap and appears in [section 11](#11-risks-gaps-and-future-work).
 
 | ID | Requirement | Verified by |
 | --- | --- | --- |
-| FR-1 | `todo add item <subject>` creates an item, optionally in `--list`, starred with `--star`, with `--due-date` as `yyyy-MM-dd` or `MM-dd`. | `AddCommandTests`, `DueDateParserTests` |
+| FR-1 | `todo add item <subject>` creates an item, optionally in `--list`, starred with `--star`, with `--due-date` as `yyyy-MM-dd` or `MM-dd`. | `AddCommandTests`, `DueDateParserTests`, `CommandLineWiringTests` |
 | FR-2 | `todo add list <name>` creates a list. | `AddCommandTests` |
 | FR-3 | `todo list` lists items, with options for list name, completed items, and age. | `ListCommandTests` |
 | FR-4 | `todo complete` and `todo remove` act on ids, or on a list filtered by `--older-than`, `--all`, `--completed`. | `CompleteCommandTests`, `RemoveCommandTests` |
 | FR-5 | `-o json` emits machine-readable output; the default is interactive. | `OutputFormatterTests` |
-| FR-6 | Help is available as `-h`, `-H`, `--help`, `--HELP`, `-?`, a man page, and an HTML page. | README; manual |
+| FR-6 | Help is available as `-h`, `-H`, `--help`, `--HELP`, `-?` on every command, plus a man page and an HTML page. | `CommandLineWiringTests` (aliases); man page and HTML by review |
 | FR-7 | The TUI supports create, read, update, delete, completion, importance, list choice, search, and theme choice, entirely from the keyboard. | `MainWindowTests`, `TodoWorkspaceTests`, `CommandKeysTests` |
 | FR-8 | The TUI validates input (`ItemValidator`) and parses due dates (`DueDateParser`). | `ItemValidatorTests`, `DueDateParserTests` |
 | FR-9 | Alt shortcuts work where Alt is available; Ctrl alternatives are advertised and always work. | `AltKeySupportTests`, `CommandKeysTests` |
@@ -241,7 +241,7 @@ which is an environment limit, not a code defect.
 
 | Area | Status | Date |
 | --- | --- | --- |
-| Unit and headless UI tests | 379 pass locally with warnings as errors | 2026-10-19 |
+| Unit and headless UI tests | 407 pass locally with warnings as errors | 2026-10-19 |
 | `dotnet format --verify-no-changes` | Clean after the formatting commit | 2026-10-14 |
 | `markdownlint-cli2` | Clean | 2026-10-14 |
 | GitHub Actions workflows | Manual-only; never run (no Actions budget) | 2026-10-14 |
@@ -253,8 +253,19 @@ which is an environment limit, not a code defect.
 - **No live Graph tests.** Repository behavior against the real service is
   untested automatically. Add a manual smoke checklist or a gated integration
   suite.
-- **Pre-release dependency.** `System.CommandLine` is a beta package; plan the
-  move to a stable release.
+- **Pre-release dependency.** `System.CommandLine` is pinned to
+  `3.0.0-rc.2.26504.105` by decision. Move to the 3.0 release when it ships and
+  re-run `CommandLineWiringTests`. The migration from 2.0 beta4 renamed the
+  `[parse]` directive to `[diagram]`; `[suggest]` and the environment-variable
+  directive are unchanged.
+- **`make publish` fails on trimming.** With `PublishTrimmed` on (the Release
+  default), `dotnet publish` fails with `IL2104` trim warnings from
+  `Microsoft.Kiota.Serialization.Json` and `Microsoft.IO.RecyclableMemoryStream`.
+  This predates the System.CommandLine 3 change (reproduced on `master`), so
+  release builds are broken until the trimming settings or packages are fixed.
+- **Command-line parsing for `list` is permissive.** `todo list --bogus` treats
+  `--bogus` as a list name (the optional `list-name` argument accepts it), so
+  it is not a parse error.
 - **macOS Alt keys.** Terminals often do not send Option as Alt; Ctrl
   alternatives are the fallback. See the README section on Alt and Option.
 - **Release workflow untested.** Validate with a pre-release tag before relying

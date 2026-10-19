@@ -17,14 +17,15 @@ public class RemoveCommand : Command
     {
 
         private static readonly Argument<string[]> IdArg =
-            new("id", "The ID of the todo item(s) to remove.")
+            new("id")
             {
+                Description = "The ID of the todo item(s) to remove.",
                 Arity = ArgumentArity.ZeroOrMore
             };
-        private static readonly Option<string> ListOpt = new(["--list", "-l"], "The name of the list to remove the item from.");
-        private static readonly Option<DateTime?> OlderThanOpt = new(["--older-than"], "Only items completed before this date.");
-        private static readonly Option<bool> AllOpt = new(new[] { "--all", "-a" }, "Remove all items fitting the filter. You will be prompted before removal.");
-        private static readonly Option<bool> CompletedOpt = new(new[] { "--completed", "-c" }, "Remove only completed items.");
+        private static readonly Option<string> ListOpt = new("--list", "-l") { Description = "The name of the list to remove the item from." };
+        private static readonly Option<DateTime?> OlderThanOpt = new("--older-than") { Description = "Only items completed before this date." };
+        private static readonly Option<bool> AllOpt = new("--all", "-a") { Description = "Remove all items fitting the filter. You will be prompted before removal." };
+        private static readonly Option<bool> CompletedOpt = new("--completed", "-c") { Description = "Remove only completed items." };
 
         public RemoveItemCommand(IServiceProvider serviceProvider) : base("item", "Deletes to do items.")
         {
@@ -33,18 +34,31 @@ public class RemoveCommand : Command
             Add(OlderThanOpt);
             Add(AllOpt);
             Add(CompletedOpt);
-            this.SetHandler(RemoveCommandHandler.Item.Create(serviceProvider), IdArg, ListOpt, OlderThanOpt, AllOpt, CompletedOpt);
+
+            var handler = RemoveCommandHandler.Item.Create(serviceProvider);
+            SetAction(parseResult => handler(
+                parseResult.GetValue(IdArg) ?? [],
+                parseResult.GetValue(ListOpt),
+                parseResult.GetValue(OlderThanOpt),
+                parseResult.GetValue(AllOpt),
+                parseResult.GetValue(CompletedOpt)));
         }
     }
 
     internal class RemoveListCommand : Command
     {
 
-        private static readonly Argument<string> NameArg = new("name", "The name of the list to remove.");
+        private static readonly Argument<string> NameArg = new("name") { Description = "The name of the list to remove." };
         public RemoveListCommand(IServiceProvider serviceProvider) : base("list", "Deletes to do list(s).")
         {
             Add(NameArg);
-            this.SetHandler(RemoveCommandHandler.List.Create(serviceProvider), NameArg);
+
+            var handler = RemoveCommandHandler.List.Create(serviceProvider);
+            SetAction(async parseResult =>
+            {
+                await handler(parseResult.GetRequiredValue(NameArg));
+                return 0;
+            });
         }
     }
 }
