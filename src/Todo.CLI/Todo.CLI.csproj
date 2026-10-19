@@ -21,7 +21,9 @@
   <!-- Common release settings -->
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishSingleFile>true</PublishSingleFile>
-    <PublishTrimmed>true</PublishTrimmed>
+    <!-- Not trimmed: Azure.Core, Kiota, InquirerCS and RecyclableMemoryStream raise IL2104 trim warnings, which fail
+         the build (warnings are errors) and could break Graph, MSAL, or prompts at run time. -->
+    <PublishTrimmed>false</PublishTrimmed>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <DebugType>embedded</DebugType>
