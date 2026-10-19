@@ -213,10 +213,11 @@ make publish RID=linux-x64
 
 Pass extra dotnet arguments with `DOTNET_ARGS`, for example
 `make test DOTNET_ARGS="-m:1 -nodeReuse:false"` in constrained environments.
-CI runs `make check` on Linux, then tests on macOS and Windows, plus a
-dependency review on pull requests. Pushing a `v*` tag runs the release
-workflow, which publishes four self-contained builds and creates a
-pre-release.
+The GitHub Actions workflows are manual-only (`workflow_dispatch`) because
+there is no Actions budget; `make check` run locally is the quality gate.
+`ci.yml` runs `make check` on Linux, then tests on macOS and Windows.
+`release.yml`, started on a `v*` tag, publishes four self-contained builds and
+creates a pre-release.
 
 ## 10. Verification
 
@@ -241,7 +242,7 @@ which is an environment limit, not a code defect.
 | Unit and headless UI tests | 353 pass locally with warnings as errors | 2026-10-14 |
 | `dotnet format --verify-no-changes` | Clean after the formatting commit | 2026-10-14 |
 | `markdownlint-cli2` | Clean | 2026-10-14 |
-| GitHub Actions workflows | Written; not yet run on GitHub | 2026-10-14 |
+| GitHub Actions workflows | Manual-only; never run (no Actions budget) | 2026-10-14 |
 | Release workflow | Not yet exercised with a real tag | 2026-10-14 |
 | Real Graph and MSAL sign-in | Not verified in this session | - |
 
@@ -255,7 +256,7 @@ which is an environment limit, not a code defect.
 - **macOS Alt keys.** Terminals often do not send Option as Alt; Ctrl
   alternatives are the fallback. See the README section on Alt and Option.
 - **Release workflow untested.** Validate with a pre-release tag before relying
-  on it. The old Azure Pipelines definitions were removed.
+  on it. It is manual-only because there is no Actions budget.
 - **Upstream license.** The original project has no license; this fork is MIT.
   Re-check upstream periodically and switch if it sets one.
 - **Untested requirements.** FR-11 (terminal restore on signals) and NFR-2
