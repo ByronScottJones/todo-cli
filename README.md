@@ -13,13 +13,7 @@
 
 A cross-platform command-line interface to interact with Microsoft To Do, built using .NET 10.
 
-
-=======
-Original Repo: https://mehmetseckin.github.io/todo-cli/
-
-## Build Status
-
-[![CI](https://github.com/ByronScottJones/todo-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/ByronScottJones/todo-cli/actions/workflows/ci.yml)
+Original repo: [mehmetseckin/todo-cli](https://mehmetseckin.github.io/todo-cli/)
 
 ## Getting Started
 
