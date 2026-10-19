@@ -90,14 +90,14 @@ known gap and appears in [section 11](#11-risks-gaps-and-future-work).
 | FR-8 | The TUI validates input (`ItemValidator`) and parses due dates (`DueDateParser`). | `ItemValidatorTests`, `DueDateParserTests` |
 | FR-9 | Alt shortcuts work where Alt is available; Ctrl alternatives are advertised and always work. | `AltKeySupportTests`, `CommandKeysTests` |
 | FR-10 | Themes are selectable at runtime, persisted per user, and every foreground/background pair meets WCAG AA contrast. | `ThemingTests`, `ThemeUiTests`, `TerminalAndThemeTests` |
-| FR-11 | The terminal is restored on exit, errors, and `SIGINT`, `SIGTERM`, `SIGHUP`. | None (known gap) |
+| FR-11 | The terminal is restored on exit, errors, and `SIGINT`, `SIGTERM`, `SIGHUP`. | `TerminalRestoreTests` |
 
 ### 4.2 Non-functional requirements
 
 | ID | Requirement | Verified by |
 | --- | --- | --- |
 | NFR-1 | Warnings are errors; `dotnet format` is clean. | `make build`, `make lint/fmt` in CI |
-| NFR-2 | Tokens are never written to logs or committed; the token cache lives in platform key storage. | Review only (known gap) |
+| NFR-2 | The token cache is encrypted at rest (AES-GCM) with a key held in platform key storage, never in the cache file; tamper and wrong-key reads are rejected. Tokens are never logged or committed. | `EncryptedTokenFileTests` (encryption and key handling); no-logging by review only |
 | NFR-3 | `NO_COLOR` is respected, and the UI degrades to ASCII without UTF-8. | `TerminalAndThemeTests` |
 | NFR-4 | The UI recalculates layout on resize and keeps the focused row visible. | `ScrollWindowTests`, `MainWindowTests` |
 | NFR-5 | Access tokens are refreshed per request, not captured once at startup. | `MsalAuthenticationProviderTests` |
@@ -184,9 +184,11 @@ decisions as ADRs under `docs/adr/`.
 ### 8.1 Authentication and key storage
 
 MSAL acquires tokens silently, with an interactive browser fallback. The token
-cache is stored through `IKeyStorage`: DPAPI-backed storage on Windows, the
-Keychain on macOS, and `libsecret` on Linux (`KeyStorageFactory` selects by
-platform; an unsupported platform throws `PlatformNotSupportedException`).
+cache is an AES-GCM encrypted file (`EncryptedTokenFile`, wired up by
+`TokenCacheHelper`) whose key is stored through `IKeyStorage`: DPAPI-backed
+storage on Windows, the Keychain on macOS, and `libsecret` on Linux
+(`KeyStorageFactory` selects by platform; an unsupported platform throws
+`PlatformNotSupportedException`).
 Scopes are `user.read` and `tasks.readwrite`. The default client id in
 `TodoCliConfiguration` is a public client registration, not a secret; it can be
 overridden through configuration.
@@ -239,7 +241,7 @@ which is an environment limit, not a code defect.
 
 | Area | Status | Date |
 | --- | --- | --- |
-| Unit and headless UI tests | 353 pass locally with warnings as errors | 2026-10-14 |
+| Unit and headless UI tests | 370 pass locally with warnings as errors | 2026-10-19 |
 | `dotnet format --verify-no-changes` | Clean after the formatting commit | 2026-10-14 |
 | `markdownlint-cli2` | Clean | 2026-10-14 |
 | GitHub Actions workflows | Manual-only; never run (no Actions budget) | 2026-10-14 |
@@ -259,8 +261,20 @@ which is an environment limit, not a code defect.
   on it. It is manual-only because there is no Actions budget.
 - **Upstream license.** The original project has no license; this fork is MIT.
   Re-check upstream periodically and switch if it sets one.
-- **Untested requirements.** FR-11 (terminal restore on signals) and NFR-2
-  (token handling) have no automated test.
+- **Token cache file permissions.** `EncryptedTokenFile` creates
+  `~/.todo-cli/token.cache` with the default umask (group and world readable,
+  for example mode 0664) inside a 0775 directory. The contents are encrypted
+  and the key is in platform key storage, but the file should be `0600` in a
+  `0700` directory on Unix. No test covers this because it currently fails.
+- **Corrupt token cache crashes sign-in.** An empty or truncated cache file
+  throws `OverflowException` from `EncryptedTokenFile.Read` instead of being
+  treated as "no cache" so the user signs in again. A cache encrypted under a
+  different key throws `CryptographicException` the same way.
+- **Key replaced on any key-storage error.** `GetOrCreateKey` catches every
+  failure from `GetKey` and saves a new key, which makes an existing cache
+  undecryptable if key storage failed only transiently.
+- **Signal tests are Unix-only.** `TerminalRestoreTests` sends real signals to
+  the test process and returns early on Windows.
 - **Linux key storage** depends on `libsecret`; headless servers without a
   secret service cannot cache tokens.
 
